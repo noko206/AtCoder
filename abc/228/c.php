@@ -1,0 +1,66 @@
+<?php
+
+class Scanner {
+    private $arr = [];
+    private $count = 0;
+    private $pointer = 0;
+
+    // 文字列型で入力を受け取る
+    public function next() {
+        if($this->pointer >= $this->count) {
+            $str = trim(fgets(STDIN));
+            $this->arr = explode(' ', $str);
+            $this->count = count($this->arr);
+            $this->pointer = 0;
+        }
+        $result = $this->arr[$this->pointer];
+        $this->pointer++;
+        return $result;
+    }
+
+    // 次の入力が存在するかを判定する
+    public function hasNext() {
+        return $this->pointer < $this->count;
+    }
+
+    // 整数型で入力を受け取る
+    public function nextInt() {
+        return (int)$this->next();
+    }
+
+    // 浮動小数点型で入力を受け取る
+    public function nextDouble() {
+        return (double)$this->next();
+    }
+}
+
+function main(){
+    $sc = new Scanner;
+
+    $n = $sc->nextInt();
+    $k = $sc->nextInt() - 1;
+
+    $p = [];
+
+    for($i = 0; $i < $n; ++$i){
+        $q = 0;
+        for($j = 0; $j < 3; ++$j){
+            $q += $sc->nextInt();
+        }
+        $p[$i] = $q;
+    }
+
+    $q = $p;
+    rsort($q);
+
+    foreach($p as $v){
+        if($v + 300 >= $q[$k]){
+            printf("Yes\n");
+        }
+        else{
+            printf("No\n");
+        }
+    }
+}
+
+main();
