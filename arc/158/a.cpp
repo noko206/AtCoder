@@ -26,30 +26,29 @@ void yesno(bool is_ok) { cout << (is_ok ? "yes" : "no") << '\n'; }
 void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
-using mint = modint998244353;
-
 int main(){
 	int t;
 	cin >> t;
-	vector<mint> ans;
+	vector<int> ans;
 	while(t--){
-		int n;
-		cin >> n;
-		int nr = (int)sqrt(n);
-		mint tmp = 0;
-		REP(y, 1, nr + 1){
-			int x_cnt = y;
-			int z_cnt = n / y - y + 1;
-			// x=y=z
-			tmp += 1;
-			// x<y=z
-			tmp += (mint)(x_cnt - 1) * 3;
-			// x=y<z
-			tmp += (mint)(z_cnt - 1) * 3;
-			// x<y<z
-			tmp += (mint)(x_cnt - 1) * (z_cnt - 1) * 6;
+		ll x, y, z;
+		cin >> x >> y >> z;
+		if(x % 2 != y % 2 || y % 2 != z % 2){
+			ans.push_back(-1);
+			continue;
 		}
+		ll sum = x + y + z;
+		if(sum % 3 != 0){
+			ans.push_back(-1);
+			continue;
+		}
+		ll avg = sum / 3;
+		ll tmp = 0;
+		tmp += abs(x - avg) / 2;
+		tmp += abs(y - avg) / 2;
+		tmp += abs(z - avg) / 2;
+		tmp /= 2;
 		ans.push_back(tmp);
 	}
-	for(auto v : ans) output(v.val());
+	output(ans);
 }

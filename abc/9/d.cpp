@@ -26,30 +26,52 @@ void yesno(bool is_ok) { cout << (is_ok ? "yes" : "no") << '\n'; }
 void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
-using mint = modint998244353;
+// 行列積
+vector<vector<ll>> matrix_mul(vector<vector<ll>> a, vector<vector<ll>> b) {
+	vector<vector<ll>> res(a.size(), vector<ll>(b[0].size()));
+	for (int i = 0; i < a.size(); i++) {
+		for (int j = 0; j < b[0].size(); j++) {
+			for (int k = 0; k < b.size(); k++) {
+				res[i][j] ^= a[i][k] & b[k][j];
+			}
+		}
+	}
+	return res;
+}
+
+// 行列累乗
+vector<vector<ll>> matrix_pow(vector<vector<ll>> a, ll n) {
+	vector<vector<ll>> res(a.size(), vector<ll>(a.size()));
+	// 単位行列で初期化
+	for (int i = 0; i < a.size(); i++) {
+		res[i][i] = (1LL << 32) - 1;
+	}
+	// 繰り返し二乗法
+	while (n > 0) {
+		if (n & 1) res = matrix_mul(a, res);
+		a = matrix_mul(a, a);
+		n >>= 1;
+	}
+	return res;
+}
 
 int main(){
-	int t;
-	cin >> t;
-	vector<mint> ans;
-	while(t--){
-		int n;
-		cin >> n;
-		int nr = (int)sqrt(n);
-		mint tmp = 0;
-		REP(y, 1, nr + 1){
-			int x_cnt = y;
-			int z_cnt = n / y - y + 1;
-			// x=y=z
-			tmp += 1;
-			// x<y=z
-			tmp += (mint)(x_cnt - 1) * 3;
-			// x=y<z
-			tmp += (mint)(z_cnt - 1) * 3;
-			// x<y<z
-			tmp += (mint)(x_cnt - 1) * (z_cnt - 1) * 6;
-		}
-		ans.push_back(tmp);
+	int k, m;
+	cin >> k >> m;
+	vector<ll> a(k), c(k);
+	REP(i, k) cin >> a[i];
+	REP(i, k) cin >> c[i];
+	if(m <= k){
+		output(a[m - 1]);
+		return 0;
 	}
-	for(auto v : ans) output(v.val());
+	vector<vector<ll>> mat(k, vector<ll>(k, 0));
+	REP(i, k) mat[0][i] = c[i];
+	REP(i, k - 1) mat[i + 1][i] = (1LL << 32) - 1;
+	ll n = m - k;
+	auto mat_pow = matrix_pow(mat, n);
+	vector<vector<ll>> a_mat(k, vector<ll>(1));
+	REP(i, k) a_mat[i][0] = a[k - i - 1];
+	auto ans = matrix_mul(mat_pow, a_mat);
+	output(ans[0][0]);
 }
