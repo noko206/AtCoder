@@ -10,14 +10,6 @@ function output(...$args) { echo implode(' ', $args), "\n"; }
 const INF64 = 1001001001001001001;
 const VALUE_MAX = 100000;
 
-function chmin(&$a, $b) {
-	if ($a > $b) {
-		$a = $b;
-		return true;
-	}
-	return false;
-}
-
 function main()
 {
 	// 入力
@@ -52,6 +44,11 @@ function main()
 
 	// 出力
 	output($ans);
+
+	for ($i = 0; $i <= $n; ++$i) {
+		for ($j = 0; $j <= 6; ++$j) echo $dp[$i][$j], ' ';
+		echo PHP_EOL;
+	}
 }
 
 main();
