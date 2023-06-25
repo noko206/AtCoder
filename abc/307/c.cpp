@@ -26,33 +26,6 @@ void yesno(bool is_ok) { cout << (is_ok ? "yes" : "no") << '\n'; }
 void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
-vector<string> conv(vector<string> x){
-	int min_h = INF32, min_w = INF32, max_h = -1, max_w = -1;
-	REP(i, (int)x.size()){
-		REP(j, x[0].length()){
-			if(x[i][j] == '#'){
-				chmin(min_h, i);
-				chmin(min_w, j);
-				chmax(max_h, i);
-				chmax(max_w, j);
-			}
-		}
-	}
-	vector<string> ans;
-	REP(i, (int)x.size()){
-		string tmp = "";
-		REP(j, x[0].length()){
-			if(i < min_h) continue;
-			if(j < min_w) continue;
-			if(i > max_h) continue;
-			if(j > max_w) continue;
-			tmp += x[i][j];
-		}
-		ans.push_back(tmp);
-	}
-	return ans;
-}
-
 int main(){
 	int ha, wa;
 	cin >> ha >> wa;
@@ -67,55 +40,53 @@ int main(){
 	vector<string> x(hx);
 	REP(i, hx) cin >> x[i];
 
-	a = conv(a);
-	b = conv(b);
-	x = conv(x);
+	int a_sum = 0, b_sum = 0;
+	REP(i, ha){
+		REP(j, wa){
+			if(a[i][j] == '#') ++a_sum;
+		}
+	}
+	REP(i, hb){
+		REP(j, wb){
+			if(b[i][j] == '#') ++b_sum;
+		}
+	}
 
-	REP(ai, 10 - (int)a.size() + 1){
-		REP(aj, 10 - a[0].length() + 1){
-			REP(bi, 10 - (int)b.size() + 1){
-				REP(bj, 10 - b[0].length() + 1){
-					vector<string> tmp(10, "..........");
-					REP(i, (int)a.size()){
-						REP(j, a[0].length()){
-							if(a[i][j] == '#'){
-								tmp[i + ai][j + aj] = '#';
-							}
-						}
-					}
-					REP(i, (int)b.size()){
-						REP(j, b[0].length()){
-							if(b[i][j] == '#'){
-								tmp[i + bi][j + bj] = '#';
-							}
-						}
-					}
-					REP(xi, 10 - (int)x.size() + 1){
-						REP(xj, 10 - x[0].length() + 1){
-							bool is_ok = true;
-							REP(i, 10){
-								REP(j, 10){
-									if(i - xi < 0 || j - xj < 0 || i - xi >= (int)x.size() || j - xj >= x[0].length()){
-										if(tmp[i][j] == '#'){
-											is_ok = false;
-											break;
-										}
-									} else if(tmp[i][j] != x[i - xi][j - xj]){
-										is_ok = false;
-										break;
-									}
+	REP(ai, -15, 15){
+		REP(aj, -15, 15){
+			REP(bi, -15, 15){
+				REP(bj, -15, 15){
+					bool is_ok = true;
+					int a_cnt = 0, b_cnt = 0;
+					REP(i, hx){
+						REP(j, wx){
+							char c = '.';
+							if(i + ai >= 0 && i + ai < ha && j + aj >= 0 && j + aj < wa){
+								if(a[i + ai][j + aj] == '#'){
+									c = '#';
+									++a_cnt;
 								}
-								if(!is_ok) break;
 							}
-							if(is_ok){
-								output("Yes");
-								return 0;
+							if(i + bi >= 0 && i + bi < hb && j + bj >= 0 && j + bj < wb){
+								if(b[i + bi][j + bj] == '#'){
+									c = '#';
+									++b_cnt;
+								}
 							}
+							if(x[i][j] != c) is_ok = false;
 						}
+					}
+					if(a_cnt != a_sum || b_cnt != b_sum){
+						is_ok = false;
+					}
+					if(is_ok){
+						output("Yes");
+						return 0;
 					}
 				}
 			}
 		}
 	}
+
 	output("No");
 }

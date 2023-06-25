@@ -28,10 +28,15 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 using mint = modint998244353;
 
+mint dp[1000005][2];
+
 int main(){
 	int n, m;
 	cin >> n >> m;
-	mint ans = m; ans *= pow_mod(m - 1, n - 1, 998244353);
-	ans *= m - 1; ans /= m;
-	output(ans.val());
+	dp[0][1] = m;
+	REP(i, n - 1){
+		dp[i + 1][0] = dp[i][0] * (m - 2) + dp[i][1] * (m - 1);
+		dp[i + 1][1] = dp[i][0];
+	}
+	output(dp[n - 1][0].val());
 }
