@@ -1,9 +1,7 @@
-.devcontainer/
 .vscode/
 atcoder/
 cpp/
 cpp-library/
-doc/
 php/
 php-library/
 a
