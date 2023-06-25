@@ -26,17 +26,17 @@ void yesno(bool is_ok) { cout << (is_ok ? "yes" : "no") << '\n'; }
 void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
-long long inversion_number(const vector<long long> &v) {
+template<class T> long long inversion_number(const vector<T> &v) {
 	auto u = v;
 	sort(u.begin(), u.end());
 	u.erase(unique(u.begin(), u.end()), u.end());
-	fenwick_tree ft((int)u.size());
+	fenwick_tree<long long> ft((int)u.size());
 	long long ans = 0;
 	int n = (int)v.size();
 	for (int i = 0; i < n; ++i) {
 		int rank = lower_bound(u.begin(), u.end(), v[i]) - u.begin();
-		ans += i - uf.sum(rank);
-		uf.add(rank, 1);
+		ans += i - ft.sum(0, rank + 1);
+		ft.add(rank, 1);
 	}
 	return ans;
 }
@@ -50,7 +50,12 @@ int main(){
 	REP(i, n) REP(j, m) p.push_back({a[i][j], i});
 	sort(ALL(p));
 	vector<int> v;
-	for(auto u : v){
-		
+	for(auto [_, x] : p){
+		v.push_back(x);
 	}
+	ll ans = inversion_number(v);
+	REP(i, n) {
+		ans += (ll)m * (m + 1) / 2 * i;
+	}
+	output(ans);
 }
