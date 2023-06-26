@@ -38,7 +38,9 @@
 		"ms-vscode.cpptools",
 		"ms-vscode.cmake-tools",
 		"shardulm94.trailing-spaces",
-		"xaver.clang-format"
+		"xaver.clang-format",
+		"bmewburn.vscode-intelephense-client",
+		"neilbrayfield.php-docblocker"
 	],
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
