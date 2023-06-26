@@ -1,5 +1,4 @@
 ---
-# Language指定なし(共通定義)。
 BasedOnStyle: Google
 IndentWidth: 4
 UseCRLF: false
