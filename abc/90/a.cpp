@@ -29,9 +29,9 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
 int main() {
-    int n, k;
-    cin >> n >> k;
-    REP(a, 1, n + 1){
-        
-    }
+    vector<string> c(3);
+    REP(i, 3) cin >> c[i];
+    string ans = "";
+    REP(i, 3) ans += c[i][i];
+    output(ans);
 }

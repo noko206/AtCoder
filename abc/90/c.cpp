@@ -29,9 +29,17 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
 int main() {
-    int n, k;
-    cin >> n >> k;
-    REP(a, 1, n + 1){
-        
+    int n, m;
+    cin >> n >> m;
+    ll ans = -1;
+    if (n == 1 && m == 1) {
+        ans = 1;
+    } else if (n == 1) {
+        ans = m - 2;
+    } else if (m == 1) {
+        ans = n - 2;
+    } else {
+        ans = (ll)(n - 2) * (m - 2);
     }
+    output(ans);
 }
