@@ -30,6 +30,47 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+struct cumulative_sum {
+   public:
+    cumulative_sum(int n) : n(n), data(n + 1, 0){};
+
+    void add(int idx, long long x) {
+        assert(0 <= idx && idx < n);
+        data[idx + 1] += x;
+    }
+
+    void build() {
+        for (int i = 0; i < n; ++i) {
+            data[i + 1] += data[i];
+        }
+    }
+
+    // [l, r)
+    long long sum(int l, int r) {
+        assert(0 <= l && l <= r && r <= n);
+        return data[r] - data[l];
+    }
+
+   private:
+    int n;
+    vector<long long> data;
+};
+
 int main() {
-    //
+    int n;
+    cin >> n;
+    cumulative_sum cs(n);
+    REP(i, n) {
+        int a;
+        cin >> a;
+        cs.add(i, a);
+    }
+    cs.build();
+    vector<ll> ans;
+    REP(k, 1, n + 1) {
+        ll tmp = 0;
+        REP(i, n - k + 1) { chmax(tmp, cs.sum(i, i + k)); }
+        ans.push_back(tmp);
+    }
+    REP(i, n) { output(ans[i]); }
 }

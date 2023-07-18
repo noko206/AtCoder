@@ -30,6 +30,58 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+using mint = modint;
+
+template <class T> struct cumulative_sum {
+   public:
+    cumulative_sum(int n) : n(n), data(n + 1, 0){};
+    cumulative_sum(const vector<T> &v) : n((int)v.size()) {
+        data.resize(n + 1, 0);
+        for (int i = 0; i < n; ++i) {
+            data[i + 1] = v[i];
+        }
+    };
+
+    void add(int idx, T x) {
+        assert(0 <= idx && idx < n);
+        data[idx + 1] += x;
+    }
+
+    void build() {
+        for (int i = 0; i < n; ++i) {
+            data[i + 1] += data[i];
+        }
+    }
+
+    // [l, r)
+    T sum(int l, int r) {
+        assert(0 <= l && l <= r && r <= n);
+        return data[r] - data[l];
+    }
+
+   private:
+    int n;
+    vector<T> data;
+};
+
 int main() {
-    //
+    int n, m;
+    cin >> n >> m;
+    vector<int> s(n - 1);
+    REP(i, n - 1) cin >> s[i];
+    vector<int> a(m);
+    REP(i, m) cin >> a[i];
+    cumulative_sum<int> cs(s);
+    cs.build();
+    int now = 0;
+    mint::set_mod(100000);
+    mint ans = 0;
+    REP(i, m) {
+        int l = now;
+        int r = now + a[i];
+        if (l > r) swap(l, r);
+        ans += cs.sum(l, r);
+        now += a[i];
+    }
+    output(ans.val());
 }
