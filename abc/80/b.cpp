@@ -33,25 +33,11 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 int main() {
     int n;
     cin >> n;
-    vector<ll> a(2 * n);
-    REP(i, n) cin >> a[i];
-    REP(i, n) a[i + n] = a[i];
-    vector dp(2 * n, vector<ll>(2 * n, -1));
-    auto dfs = [&](auto &dfs, int l, int r) -> ll {
-        if (l > r) return 0;
-        if (dp[l][r] != -1) return dp[l][r];
-        if ((n - (r - l + 1)) % 2 == 0) {
-            return dp[l][r] = max(dfs(dfs, l + 1, r) + a[l],
-                                  dfs(dfs, l, r - 1) + a[r]);
-        } else {
-            if (a[l] < a[r]) {
-                return dp[l][r] = dfs(dfs, l, r - 1);
-            } else {
-                return dp[l][r] = dfs(dfs, l + 1, r);
-            }
-        }
-    };
-    ll ans = 0;
-    REP(i, n) { chmax(ans, dfs(dfs, i, i + n - 1)); }
-    output(ans);
+    int fx = 0;
+    int m = n;
+    while (m > 0) {
+        fx += m % 10;
+        m /= 10;
+    }
+    YesNo(n % fx == 0);
 }

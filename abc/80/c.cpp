@@ -33,25 +33,27 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 int main() {
     int n;
     cin >> n;
-    vector<ll> a(2 * n);
-    REP(i, n) cin >> a[i];
-    REP(i, n) a[i + n] = a[i];
-    vector dp(2 * n, vector<ll>(2 * n, -1));
-    auto dfs = [&](auto &dfs, int l, int r) -> ll {
-        if (l > r) return 0;
-        if (dp[l][r] != -1) return dp[l][r];
-        if ((n - (r - l + 1)) % 2 == 0) {
-            return dp[l][r] = max(dfs(dfs, l + 1, r) + a[l],
-                                  dfs(dfs, l, r - 1) + a[r]);
-        } else {
-            if (a[l] < a[r]) {
-                return dp[l][r] = dfs(dfs, l, r - 1);
-            } else {
-                return dp[l][r] = dfs(dfs, l + 1, r);
-            }
+    vector<int> f(n, 0);
+    REP(i, n) {
+        REP(j, 10) {
+            int tmp;
+            cin >> tmp;
+            f[i] <<= 1;
+            f[i] |= tmp;
         }
-    };
-    ll ans = 0;
-    REP(i, n) { chmax(ans, dfs(dfs, i, i + n - 1)); }
+    }
+    vector p(n, vector<int>(11));
+    REP(i, n) REP(j, 11) cin >> p[i][j];
+    ll ans = -INF64;
+    REP(bit, 1, 1 << 10) {
+        ll sum = 0;
+        bool is_ok = false;
+        REP(i, n) {
+            int cnt = __builtin_popcount(bit & f[i]);
+            if (cnt > 0) is_ok = true;
+            sum += p[i][cnt];
+        }
+        chmax(ans, sum);
+    }
     output(ans);
 }
