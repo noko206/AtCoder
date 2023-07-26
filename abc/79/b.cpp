@@ -31,26 +31,11 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
 int main() {
-    vector<int> ans;
-    while (true) {
-        int n;
-        cin >> n;
-        if (n == 0) break;
-        vector<int> w(n);
-        REP(i, n) cin >> w[i];
-        vector dp(n, vector<int>(n, -1));
-        auto dfs = [&](auto &dfs, int l, int r) -> int {
-            if (r - l <= 0) return 0;
-            if (dp[l][r] != -1) return dp[l][r];
-            if (abs(w[r] - w[l]) <= 1 && dfs(dfs, l + 1, r - 1) == r - l - 1) {
-                return dp[l][r] = r - l + 1;
-            }
-            REP(i, l, r + 1) {
-                chmax(dp[l][r], dfs(dfs, l, i) + dfs(dfs, i + 1, r));
-            }
-            return dp[l][r];
-        };
-        ans.push_back(dfs(dfs, 0, n - 1));
-    }
-    REP(i, ans.size()) { cout << ans[i] << endl; }
+    int n;
+	cin >> n;
+    vector<ll> l(n + 1);
+    l[0] = 2;
+    l[1] = 1;
+    REP(i, 2, n + 1) { l[i] = l[i - 1] + l[i - 2]; }
+    output(l[n]);
 }
