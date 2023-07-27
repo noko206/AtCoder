@@ -30,72 +30,8 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
-template <class T> struct CumulativeSum {
-   public:
-    CumulativeSum(int n) : n(n), data(n + 1, 0){};
-    CumulativeSum(const vector<T> &v) : n((int)v.size()) {
-        data.resize(n + 1, 0);
-        for (int i = 0; i < n; ++i) {
-            data[i + 1] = v[i];
-        }
-    };
-
-    void add(int idx, T x) {
-        assert(0 <= idx && idx < n);
-        data[idx + 1] += x;
-    }
-
-    void build() {
-        for (int i = 0; i < n; ++i) {
-            data[i + 1] += data[i];
-        }
-    }
-
-    // [l, r)
-    T sum(int l, int r) {
-        assert(0 <= l && l <= r && r <= n);
-        return data[r] - data[l];
-    }
-
-   private:
-    int n;
-    vector<T> data;
-};
-
 int main() {
     int n, m;
     cin >> n >> m;
-    vector<int> a(n);
-    REP(i, n) cin >> a[i], --a[i];
-    vector<CumulativeSum<int>> cs(m, n);
-    vector<int> cnt(m, 0);
-    REP(i, n) {
-        cs[a[i]].add(i, 1);
-        ++cnt[a[i]];
-    }
-    REP(i, m) cs[i].build();
-    vector dp(1 << m, vector<int>(m, INF32));
-    dp[0][0] = 0;
-    REP(bit, 1 << m) {
-        vector<pair<int, int>> p(m);
-        int pos = 0;
-        REP(i, m) {
-            if (bit & (1 << i)) {
-                pos += cnt[i];
-            }
-        }
-        REP(i, m) {
-            if (bit != 0 && !(bit & (1 << i))) continue;
-            REP(j, m) {
-                if (bit & (1 << j)) continue;
-                int l = pos;
-                int r = pos + cnt[j];
-                int tot = cs[j].sum(l, r);
-                chmin(dp[bit | (1 << j)][j], dp[bit][i] + (r - l - tot));
-            }
-        }
-    }
-    int ans = INF32;
-    REP(i, m) { chmin(ans, dp[(1 << m) - 1][i]); }
-    output(ans);
+    output((1900 * m + 100 * (n - m)) * pow(2, m));
 }
