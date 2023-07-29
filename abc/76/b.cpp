@@ -31,23 +31,14 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
 int main() {
-    int n, m;
-    cin >> n >> m;
-    Imos2d<int> imos(n, n);
-    REP(i, m) {
-        int a, b, x;
-        cin >> a >> b >> x;
-        --a, --b;
-        imos.add(a, b, a + x + 1, b + x + 1, 1);
-    }
-    imos.build();
-    int ans = 0;
+    int n, k;
+    cin >> n >> k;
+    int ans = 1;
     REP(i, n) {
-        REP(j, n) {
-            if (imos.get(i, j) > 0) ++ans;
-            cout << imos.get(i, j) << ' ';
-        }
-        cout << endl;
+        if (ans <= k)
+            ans *= 2;
+        else
+            ans += k;
     }
     output(ans);
 }
