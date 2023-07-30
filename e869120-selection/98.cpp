@@ -30,9 +30,20 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+using mint = modint1000000007;
+
 int main() {
     int n;
     cin >> n;
     vector<int> a(n);
     REP(i, n) cin >> a[i];
+    vector<int> cnt(n, 0);
+    cnt[0] = 3;
+    mint ans = 1;
+    REP(i, n) {
+        ans *= cnt[a[i]];
+        --cnt[a[i]];
+        ++cnt[a[i] + 1];
+    }
+    output(ans.val());
 }

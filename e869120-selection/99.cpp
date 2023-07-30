@@ -31,23 +31,14 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
 int main() {
-    int n, m;
-    cin >> n >> m;
-    vector<int> a(n);
-    REP(i, n) cin >> a[i], a[i] /= 2;
-    ll l = 1;
-    REP(i, n) {
-        l = lcm(l, a[i]);
-        if (l > m) {
-            output(0);
-            return 0;
-        }
+    int m;
+    cin >> m;
+    vector<ll> d(m), c(m);
+    REP(i, m) cin >> d[i] >> c[i];
+    ll x = 0, y = 0;
+    REP(i, m) {
+        x += c[i];
+        y += d[i] * c[i];
     }
-    REP(i, n) {
-        if ((l / a[i]) % 2 == 0) {
-            output(0);
-            return 0;
-        }
-    }
-    output((m / l + 1) / 2);
+    output(x - 1 + (y - 1) / 9);
 }

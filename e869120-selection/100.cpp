@@ -31,23 +31,41 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
 int main() {
-    int n, m;
-    cin >> n >> m;
-    vector<int> a(n);
-    REP(i, n) cin >> a[i], a[i] /= 2;
-    ll l = 1;
-    REP(i, n) {
-        l = lcm(l, a[i]);
-        if (l > m) {
-            output(0);
+    int n;
+    cin >> n;
+    if (n == 1) {
+        output("Yes");
+        output(2);
+        output(1, 1);
+        output(1, 1);
+        return 0;
+    }
+    REP(i, 3, INF32) {
+        int m = i * (i - 1) / 2;
+        if (n < m) break;
+        if (n == m) {
+            output("Yes");
+            output(i);
+            map<pair<int, int>, int> edges;
+            int cnt = 1;
+            REP(j, i) {
+                REP(k, j) {
+                    edges[{j, k}] = cnt;
+                    edges[{k, j}] = cnt;
+                    ++cnt;
+                }
+            }
+            REP(j, i) {
+                vector<int> ans;
+                ans.push_back(i - 1);
+                REP(k, i) {
+                    if (j == k) continue;
+                    ans.push_back(edges[{j, k}]);
+                }
+                output(ans);
+            }
             return 0;
         }
     }
-    REP(i, n) {
-        if ((l / a[i]) % 2 == 0) {
-            output(0);
-            return 0;
-        }
-    }
-    output((m / l + 1) / 2);
+    output("No");
 }

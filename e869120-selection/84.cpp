@@ -33,21 +33,35 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 int main() {
     int n, m;
     cin >> n >> m;
-    Imos2d<int> imos(n, n);
+    vector tot(n + 5, vector<int>(n + 5, 0));
     REP(i, m) {
         int a, b, x;
         cin >> a >> b >> x;
         --a, --b;
-        imos.add(a, b, a + x + 1, b + x + 1, 1);
+        tot[a][b] += 1;
+        tot[a][b + 1] += -1;
+        tot[a + x + 1][b] += -1;
+        tot[a + x + 1][b + x + 2] += 1;
+        tot[a + x + 2][b + 1] += 1;
+        tot[a + x + 2][b + x + 2] += -1;
     }
-    imos.build();
+    // 1.左から右
+    REP(i, n) {
+        REP(j, n) { tot[i][j + 1] += tot[i][j]; }
+    }
+    // 2.右上→左下
+    REP(i, n) {
+        REP(j, n) { tot[i + 1][j] += tot[i][j]; }
+    }
+    // 3.左上→右下
+    REP(i, n) {
+        REP(j, n) { tot[i + 1][j + 1] += tot[i][j]; }
+    }
     int ans = 0;
     REP(i, n) {
-        REP(j, n) {
-            if (imos.get(i, j) > 0) ++ans;
-            cout << imos.get(i, j) << ' ';
+        REP(j, i + 1) {
+            if (tot[i][j] > 0) ++ans;
         }
-        cout << endl;
     }
     output(ans);
 }
