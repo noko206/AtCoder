@@ -35,13 +35,26 @@ int main() {
     cin >> n >> s;
     vector<int> a(n);
     REP(i, n) cin >> a[i];
-    vector dp(n + 1, vector<bool>(10005, false));
+    vector dp(n + 1, vector<bool>(s + 1, false));
     dp[0][0] = true;
     REP(i, n) {
-        REP(j, 10001) {
+        REP(j, s + 1) {
             if (dp[i][j]) dp[i + 1][j] = true;
             if (j - a[i] >= 0 && dp[i][j - a[i]]) dp[i + 1][j] = true;
         }
     }
-    YesNo(dp[n][s]);
+    if (!dp[n][s]) {
+        output(-1);
+        return 0;
+    }
+    int now = s;
+    vector<int> ans;
+    RREP(i, n, 1) {
+        if (dp[i - 1][now]) continue;
+        ans.push_back(i);
+        now -= a[i - 1];
+    }
+    reverse(ALL(ans));
+    output((int)ans.size());
+    output(ans);
 }

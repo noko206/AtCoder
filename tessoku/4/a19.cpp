@@ -31,17 +31,19 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
 int main() {
-    int n, s;
-    cin >> n >> s;
-    vector<int> a(n);
-    REP(i, n) cin >> a[i];
-    vector dp(n + 1, vector<bool>(10005, false));
-    dp[0][0] = true;
+    int n, w;
+    cin >> n >> w;
+    vector<int> weight(n), value(n);
+    REP(i, n) cin >> weight[i] >> value[i];
+    vector dp(n + 1, vector<ll>(w + 1, 0));
     REP(i, n) {
-        REP(j, 10001) {
-            if (dp[i][j]) dp[i + 1][j] = true;
-            if (j - a[i] >= 0 && dp[i][j - a[i]]) dp[i + 1][j] = true;
+        REP(j, w + 1) {
+            if (j - weight[i] >= 0) {
+                dp[i + 1][j] = max(dp[i][j - weight[i]] + value[i], dp[i][j]);
+            } else {
+                dp[i + 1][j] = dp[i][j];
+            }
         }
     }
-    YesNo(dp[n][s]);
+    output(dp[n][w]);
 }
