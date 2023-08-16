@@ -30,10 +30,27 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+int op(int a, int b) { return min(a, b); }
+
+int e() { return INF32; }
+
 int main() {
     int n, l, r;
-	cin >> n >> l >> r;
-	vector<int> x(n);
-	REP(i, n) cin >> x[i];
-	
+    cin >> n >> l >> r;
+    vector<int> x(n);
+    REP(i, n) cin >> x[i];
+    segtree<int, op, e> dp(n);
+    dp.set(0, 0);
+    REP(i, 1, n) {
+        auto itl = lower_bound(ALL(x), x[i] - r);
+        auto itr = upper_bound(ALL(x), x[i] - l);
+        if (itr == x.begin()) continue;
+        --itr;
+        int posl = itl - x.begin();
+        int posr = itr - x.begin();
+        int mn = dp.prod(posl, posr + 1);
+        if (mn == INF32) continue;
+        dp.set(i, mn + 1);
+    }
+    output(dp.get(n - 1));
 }

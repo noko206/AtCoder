@@ -30,27 +30,39 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+using P = pair<ll, int>;
+
 int main() {
-    ll n;
-    cin >> n;
-    string str_n = to_string(n);
-    reverse(ALL(str_n));
-    vector r(str_n.length(), vector<ll>(10, 0));
-    vector<ll> pow10(20, 1);
-    REP(i, 17) pow10[i + 1] *= pow10[i] * 10;
-    REP(i, str_n.length()) {
-        int k = str_n[i] - '0';
-        REP(j, 10) {
-            if (j < k) {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i] + pow10[i];
-            } else if (j == k) {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i] + (n % pow10[i]) + 1;
-            } else {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i];
+    int n, m;
+    cin >> n >> m;
+    vector<vector<P>> to(n);
+    REP(i, m) {
+        int a, b, c;
+        cin >> a >> b >> c;
+        --a, --b;
+        to[a].emplace_back(c, b);
+        to[b].emplace_back(c, a);
+    }
+    vector dist(2, vector<ll>(n, INF64));
+    REP(i, 2) {
+        priority_queue<P, vector<P>, greater<P>> pq;
+        int start = i ? n - 1 : 0;
+        pq.push({0, start});
+        dist[i][start] = 0;
+        while (!pq.empty()) {
+            auto [cv, v] = pq.top();
+            pq.pop();
+            if (dist[i][v] < cv) continue;
+            for (auto [cu, u] : to[v]) {
+                if (chmin(dist[i][u], dist[i][v] + cu)) {
+                    pq.push({dist[i][u], u});
+                }
             }
         }
     }
-    ll ans = 0;
-    REP(i, str_n.length()) { REP(j, 10) ans += (ll)j * r[i][j]; }
+    int ans = 0;
+    REP(i, n) {
+        if (dist[0][i] + dist[1][i] == dist[0][n - 1]) ++ans;
+    }
     output(ans);
 }

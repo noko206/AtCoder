@@ -31,26 +31,32 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
 int main() {
-    ll n;
-    cin >> n;
-    string str_n = to_string(n);
-    reverse(ALL(str_n));
-    vector r(str_n.length(), vector<ll>(10, 0));
-    vector<ll> pow10(20, 1);
-    REP(i, 17) pow10[i + 1] *= pow10[i] * 10;
-    REP(i, str_n.length()) {
-        int k = str_n[i] - '0';
-        REP(j, 10) {
-            if (j < k) {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i] + pow10[i];
-            } else if (j == k) {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i] + (n % pow10[i]) + 1;
-            } else {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i];
+    int n, m, k;
+    cin >> n >> m >> k;
+    vector<int> a(m), b(m);
+    REP(i, m) cin >> a[i] >> b[i], --a[i], --b[i];
+    vector cnt(n, vector<int>(n, -1));
+    REP(l, n) {
+        REP(r, l, n) {
+            int sum = 0;
+            REP(i, m) {
+                if (l <= a[i] && a[i] <= r && l <= b[i] && b[i] <= r) {
+                    ++sum;
+                }
+            }
+            cnt[l][r] = sum;
+        }
+    }
+    vector dp(k + 1, vector<int>(n + 1, -1));
+    dp[0][0] = 0;
+    REP(i, k) {
+        REP(l, n) {
+            REP(r, l, n) {
+                if (dp[i][l] != -1) {
+                    chmax(dp[i + 1][r + 1], dp[i][l] + cnt[l][r]);
+                }
             }
         }
     }
-    ll ans = 0;
-    REP(i, str_n.length()) { REP(j, 10) ans += (ll)j * r[i][j]; }
-    output(ans);
+    output(dp[k][n]);
 }

@@ -30,27 +30,40 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+using mint = modint1000000007;
+
 int main() {
-    ll n;
-    cin >> n;
-    string str_n = to_string(n);
-    reverse(ALL(str_n));
-    vector r(str_n.length(), vector<ll>(10, 0));
-    vector<ll> pow10(20, 1);
-    REP(i, 17) pow10[i + 1] *= pow10[i] * 10;
-    REP(i, str_n.length()) {
-        int k = str_n[i] - '0';
-        REP(j, 10) {
-            if (j < k) {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i] + pow10[i];
-            } else if (j == k) {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i] + (n % pow10[i]) + 1;
+    int n, p;
+    cin >> n >> p;
+    vector<mint> a(n);
+    REP(i, n) {
+        ll tmp;
+        cin >> tmp;
+        a[i] = tmp;
+    }
+    if (p == 0) {
+        ll ans = 0;
+        int cnt = 0;
+        REP(i, n) {
+            if (a[i].val() == 0) {
+                ans += i;
+                ++cnt;
             } else {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i];
+                ans += cnt;
             }
         }
+        output(ans);
+        return 0;
     }
+    unordered_map<int, int> mp;
     ll ans = 0;
-    REP(i, str_n.length()) { REP(j, 10) ans += (ll)j * r[i][j]; }
+    REP(i, n) {
+        if (a[i].val() == 0) continue;
+        mint tmp = p / a[i];
+        if (mp.find(tmp.val()) != mp.end()) {
+            ans += mp[tmp.val()];
+        }
+        ++mp[a[i].val()];
+    }
     output(ans);
 }

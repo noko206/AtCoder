@@ -31,26 +31,44 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
 int main() {
-    ll n;
-    cin >> n;
-    string str_n = to_string(n);
-    reverse(ALL(str_n));
-    vector r(str_n.length(), vector<ll>(10, 0));
-    vector<ll> pow10(20, 1);
-    REP(i, 17) pow10[i + 1] *= pow10[i] * 10;
-    REP(i, str_n.length()) {
-        int k = str_n[i] - '0';
-        REP(j, 10) {
-            if (j < k) {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i] + pow10[i];
-            } else if (j == k) {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i] + (n % pow10[i]) + 1;
-            } else {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i];
-            }
+    int n, k;
+    cin >> n >> k;
+    vector<int> L(n), R(n);
+    REP(i, n) cin >> L[i] >> R[i], R[i] += k;
+    vector<pair<int, int>> rl(n), lr(n);
+    REP(i, n) {
+        rl[i] = {R[i], L[i]};
+        lr[i] = {L[i], R[i]};
+    }
+    // 左から区間スケジューリング
+    sort(ALL(rl));
+    vector<int> cntl(86400 * 2 + 1, 0), cntr(86400 * 2 + 1, 0);
+    int pos = 0;
+    for (auto [r, l] : rl) {
+        if (pos <= l) {
+            cntl[r] = cntl[pos] + 1;
+            pos = r;
         }
     }
-    ll ans = 0;
-    REP(i, str_n.length()) { REP(j, 10) ans += (ll)j * r[i][j]; }
+    // 右から区間スケジューリング
+    sort(ALLR(lr));
+    pos = 86400 * 2;
+    for (auto [l, r] : lr) {
+        if (pos >= r) {
+            cntr[l] = cntr[pos] + 1;
+            pos = l;
+        }
+    }
+    // 会議中の箇所にも値を入れる
+    REP(i, 86400 * 2 + 1) {
+        if (i > 0 && cntl[i] == 0) {
+            cntl[i] = cntl[i - 1];
+        }
+        if (i > 0 && cntr[86400 * 2 - i] == 0) {
+            cntr[86400 * 2 - i] = cntr[86400 * 2 - i + 1];
+        }
+    }
+    vector<int> ans(n);
+    REP(i, n) ans[i] = cntl[L[i]] + 1 + cntr[R[i]];
     output(ans);
 }

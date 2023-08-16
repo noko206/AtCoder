@@ -31,26 +31,23 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
 int main() {
-    ll n;
-    cin >> n;
-    string str_n = to_string(n);
-    reverse(ALL(str_n));
-    vector r(str_n.length(), vector<ll>(10, 0));
-    vector<ll> pow10(20, 1);
-    REP(i, 17) pow10[i + 1] *= pow10[i] * 10;
-    REP(i, str_n.length()) {
-        int k = str_n[i] - '0';
-        REP(j, 10) {
-            if (j < k) {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i] + pow10[i];
-            } else if (j == k) {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i] + (n % pow10[i]) + 1;
-            } else {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i];
-            }
+    int n, k;
+    cin >> n >> k;
+    vector<int> a(n);
+    REP(i, n) cin >> a[i];
+    double ok = 0;
+    double ng = (double)INF32;
+    REP(_, 100) {
+        double mid = (ok + ng) / 2;
+        ll cnt = 0;
+        REP(i, n) { cnt += floor(a[i] / mid); }
+        if (cnt >= k) {
+            ok = mid;
+        } else {
+            ng = mid;
         }
     }
-    ll ans = 0;
-    REP(i, str_n.length()) { REP(j, 10) ans += (ll)j * r[i][j]; }
+    vector<int> ans(n);
+    REP(i, n) { ans[i] = floor(a[i] / ok); }
     output(ans);
 }

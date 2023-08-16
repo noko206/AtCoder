@@ -30,27 +30,45 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+using P = pair<int, int>;
+
 int main() {
-    ll n;
-    cin >> n;
-    string str_n = to_string(n);
-    reverse(ALL(str_n));
-    vector r(str_n.length(), vector<ll>(10, 0));
-    vector<ll> pow10(20, 1);
-    REP(i, 17) pow10[i + 1] *= pow10[i] * 10;
-    REP(i, str_n.length()) {
-        int k = str_n[i] - '0';
-        REP(j, 10) {
-            if (j < k) {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i] + pow10[i];
-            } else if (j == k) {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i] + (n % pow10[i]) + 1;
-            } else {
-                r[i][j] = (n / pow10[i + 1]) * pow10[i];
-            }
-        }
+    int n, m, k;
+    cin >> n >> m >> k;
+    vector<ll> a(m), s(m), b(m), t(m);
+    REP(i, m) {
+        cin >> a[i] >> s[i] >> b[i] >> t[i];
+        t[i] += k;
+        --a[i];
+        --b[i];
     }
-    ll ans = 0;
-    REP(i, str_n.length()) { REP(j, 10) ans += (ll)j * r[i][j]; }
-    output(ans);
+    int sz = 1 + n + 2 * m + n + 1;
+    vector<vector<P>> to(sz);
+    REP(i, n) {
+        to[0].emplace_back(i + 1, 0);
+        to[1 + n + 2 * m + i].emplace_back(sz - 1, 0);
+    }
+    vector<vector<tuple<ll, int, int>>> v(n);
+    REP(i, m) {
+        v[a[i]].emplace_back(s[i], 1, 1 + n + 2 * i);
+        v[b[i]].emplace_back(t[i], 0, 1 + n + 2 * i + 1);
+        to[1 + n + 2 * i].emplace_back(1 + n + 2 * i + 1, 1);
+    }
+    REP(i, n) {
+        int num = v[i].size();
+        if (num == 0) continue;
+        sort(ALL(v[i]));
+        auto [st, sf, si] = v[i][0];
+        to[1 + i].emplace_back(si, 0);
+        REP(j, num - 1) {
+            auto [vt, vf, vi] = v[i][j];
+            auto [ut, uf, ui] = v[i][j + 1];
+            to[vi].emplace_back(ui, 0);
+        }
+        auto [gt, gf, gi] = v[i][num - 1];
+        to[gi].emplace_back(1 + n + 2 * m + i, 0);
+    }
+    vector<int> dp(sz, INF32);
+	dp[0] = 0;
+    output(dp[sz - 1]);
 }
