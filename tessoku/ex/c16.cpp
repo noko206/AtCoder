@@ -33,63 +33,58 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 int main() {
     int n, m, k;
     cin >> n >> m >> k;
-    vector<ll> a(m), s(m), b(m), t(m);
+    int v_size = 1 + n + 2 * m + n + 1;
+    vector<vector<pair<int, int>>> to(v_size);
+    REP(i, n) to[0].emplace_back(i + 1, 0);
+    REP(i, n) to[1 + n + 2 * m + i].emplace_back(v_size - 1, 0);
+    vector<tuple<int, int, int>> list;
+    vector<int> a(m), s(m), t(m), b(m);
     REP(i, m) {
         cin >> a[i] >> s[i] >> b[i] >> t[i];
+        --a[i], --b[i];
         t[i] += k;
-        --a[i];
-        --b[i];
+        list.emplace_back(s[i], 1, i);
+        list.emplace_back(t[i], 0, i);
     }
-    vector<vector<tuple<int, int, ll>>> to(1 + n + 2 * m + n + 1);
-    REP(i, n) {
-        to[0].emplace_back(i + 1, 0, 0);
-        to[1 + n + 2 * m + i].emplace_back(1 + n + 2 * m + n, 0, INF64);
+    sort(ALL(list));
+    int id = 1 + n;
+    map<pair<int, int>, int> mp;
+    for (auto [v, flg, idx] : list) mp[{idx, flg}] = id++;
+    for (auto [v, flg, idx] : list) {
+        if (flg == 0) continue;
+        to[mp[{idx, 1}]].emplace_back(mp[{idx, 0}], 1);
     }
-    vector<vector<tuple<int, int, int, int>>> vertex(n);
-    REP(i, m) {
-        vertex[a[i]].emplace_back(s[i], 1, 1 + n + 2 * i, i);
-        vertex[b[i]].emplace_back(t[i], 0, 1 + n + 2 * i + 1, i);
-        to[1 + n + 2 * i].emplace_back(1 + n + 2 * i + 1, 1, t[i]);
-    }
-    REP(i, n) {
-        int sz = vertex[i].size();
-        if (sz == 0) continue;
-        sort(ALL(vertex[i]));
-        auto [_1, _2, sv, sidx] = vertex[i][0];
-        to[1 + i].emplace_back(sv, 0, t[sidx]);
-        REP(j, sz - 1) {
-            auto [_3, _4, v, _5] = vertex[i][j];
-            auto [_6, _7, u, uidx] = vertex[i][j + 1];
-            to[v].emplace_back(u, 0, t[uidx]);
-        }
-        auto [_8, _9, gv, _10] = vertex[i][sz - 1];
-        to[gv].emplace_back(1 + n + 2 * m + i, 0, INF64);
-    }
-    vector<int> dp(1 + n + 2 * m + n + 1, 0);
-    vector<bool> is_added(1 + n + 2 * m + n + 1, false);
-    is_added[0] = true;
-    priority_queue<pair<ll, int>, vector<pair<ll, int>>, greater<pair<ll, int>>>
-        q;
-    q.push({0, 0});
-    while (!q.empty()) {
-        auto [_, v] = q.top();
-        q.pop();
-        for (auto [u, w, c] : to[v]) {
-            chmax(dp[u], dp[v] + w);
-            if (!is_added[u]) {
-                q.push({c, u});
-                is_added[u] = true;
-            }
+    vector<vector<int>> same_v(n);
+    for (auto [v, flg, idx] : list) {
+        if (flg == 1) {
+            same_v[a[idx]].push_back(mp[{idx, flg}]);
+        } else {
+            same_v[b[idx]].push_back(mp[{idx, flg}]);
         }
     }
-    output(dp[1 + n + 2 * m + n]);
-    // output("---");
-    // output(dp[0]);
-    // REP(i, n) cout << dp[1 + i] << ' ';
-    // cout << endl;
-    // REP(i, 2 * m) cout << dp[1 + n + i] << ' ';
-    // cout << endl;
-    // REP(i, n) cout << dp[1 + n + 2 * m + i] << ' ';
-    // cout << endl;
-    // output(dp[1 + n + 2 * m + n]);
+    REP(i, n) {
+        if (same_v[i].size() == 0) continue;
+        sort(ALL(same_v[i]));
+        to[1 + i].emplace_back(same_v[i][0], 0);
+        REP(j, same_v[i].size() - 1) {
+            to[same_v[i][j]].emplace_back(same_v[i][j + 1], 0);
+        }
+        to[same_v[i][same_v[i].size() - 1]].emplace_back(1 + n + 2 * m + i, 0);
+    }
+    vector<int> dp(v_size, -INF32);
+    dp[0] = 0;
+    REP(v, v_size) {
+        if (dp[v] == -INF32) continue;
+        for (auto [u, c] : to[v]) {
+            chmax(dp[u], dp[v] + c);
+        }
+    }
+    output(dp[v_size - 1]);
+    // REP(v, v_size) {
+    //     cout << v << ": ";
+    //     for (auto [u, _] : to[v]) {
+    //         cout << u << ' ';
+    //     }
+    //     cout << endl;
+    // }
 }
