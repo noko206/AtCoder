@@ -30,44 +30,42 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
-bool solve() {
-    int n, k;
-    cin >> n >> k;
-    string s;
-    cin >> s;
-    int m = 0;
-    REP(i, n) {
-        if (s[i] == '1') ++m;
-    }
-    int cnt_zero = 0, cnt_one = 0;
-    REP(i, k - 1) {
-        if (s[i] == '0') {
-            ++cnt_zero;
-        } else if (s[i] == '1') {
-            ++cnt_one;
-        }
-    }
-    int cnt = 0;
-    REP(i, n - k + 1) {
-        if (s[i + k - 1] == '0') {
-            ++cnt_zero;
-        } else if (s[i + k - 1] == '1') {
-            ++cnt_one;
-        }
-        if (cnt_one == m && cnt_zero == 0) ++cnt;
-        if (s[i] == '0') {
-            --cnt_zero;
-        } else if (s[i] == '1') {
-            --cnt_one;
-        }
-    }
-    return cnt == 1;
-}
+using P = pair<ll, int>;
 
 int main() {
-    int t;
-    cin >> t;
-    vector<bool> ans(t);
-    REP(i, t) { ans[i] = solve(); }
-    REP(i, t) YesNo(ans[i]);
+    int n;
+    cin >> n;
+    vector<vector<P>> to(n);
+    REP(i, n - 1) {
+        int a, b, c;
+        cin >> a >> b >> c;
+        --a, --b;
+        to[a].emplace_back(c, b);
+        to[b].emplace_back(c, a);
+    }
+    int q, k;
+    cin >> q >> k;
+    --k;
+    priority_queue<P, vector<P>, greater<P>> pq;
+    pq.push({0, k});
+    vector<ll> dist(n, INF64);
+    dist[k] = 0;
+    while (!pq.empty()) {
+        auto [cv, v] = pq.top();
+        pq.pop();
+        if (cv > dist[v]) continue;
+        for (auto [cu, u] : to[v]) {
+            if (chmin(dist[u], dist[v] + cu)) {
+                pq.push({dist[u], u});
+            }
+        }
+    }
+    vector<ll> ans(q);
+    REP(i, q) {
+        int x, y;
+        cin >> x >> y;
+        --x, --y;
+        ans[i] = dist[x] + dist[y];
+    }
+    REP(i, q) { output(ans[i]); }
 }

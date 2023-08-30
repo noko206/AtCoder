@@ -30,44 +30,10 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
-bool solve() {
-    int n, k;
-    cin >> n >> k;
+int main() {
     string s;
     cin >> s;
-    int m = 0;
-    REP(i, n) {
-        if (s[i] == '1') ++m;
-    }
-    int cnt_zero = 0, cnt_one = 0;
-    REP(i, k - 1) {
-        if (s[i] == '0') {
-            ++cnt_zero;
-        } else if (s[i] == '1') {
-            ++cnt_one;
-        }
-    }
-    int cnt = 0;
-    REP(i, n - k + 1) {
-        if (s[i + k - 1] == '0') {
-            ++cnt_zero;
-        } else if (s[i + k - 1] == '1') {
-            ++cnt_one;
-        }
-        if (cnt_one == m && cnt_zero == 0) ++cnt;
-        if (s[i] == '0') {
-            --cnt_zero;
-        } else if (s[i] == '1') {
-            --cnt_one;
-        }
-    }
-    return cnt == 1;
-}
-
-int main() {
-    int t;
-    cin >> t;
-    vector<bool> ans(t);
-    REP(i, t) { ans[i] = solve(); }
-    REP(i, t) YesNo(ans[i]);
+    string t = s;
+    reverse(ALL(t));
+    YesNo(s == t);
 }
