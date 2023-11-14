@@ -37,13 +37,14 @@ int main() {
     cin >> n;
     vector<int> a(n);
     REP(i, n) cin >> a[i];
-    mint ans = 0;
+    vector<mint> dp(n + 1, 0);
+    mint a_tot = 0;
+    mint dp_tot = 0;
     mint inv_n = inv_mod(n, 998244353);
-    fenwick_tree<mint> fw(n + 1);
-    REP(i, n) {
-        mint x = fw.sum(0, i) + (a[i] * (i + 1) * inv_n);
-        fw.add(i, x);
-        ans += x * (i + 1) * inv_n;
+    RREP(i, n - 1) {
+        a_tot += a[i];
+        dp_tot += dp[i + 1];
+        dp[i] = (a_tot + dp_tot) * inv_n;
     }
-    output(ans.val());
+    output(dp[0].val());
 }

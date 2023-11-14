@@ -31,5 +31,62 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
 int main() {
-    //
+    int n;
+    cin >> n;
+    string r, c;
+    cin >> r >> c;
+    vector used(n, vector<bool>(n, false));  // A,B,C,none,none
+    bool is_ok = false;
+    string s = "ABC..";
+    vector<string> ans;
+    auto dfs = [&](auto &dfs) -> void {
+        if (ans.size() == n) {
+            // r,cの条件を満たすか判定
+            bool ok = true;
+            REP(i, n) {
+                REP(j, n) {
+                    if (ans[i][j] == '.') continue;
+                    if (ans[i][j] != r[i]) ok = false;
+                    break;
+                }
+            }
+            REP(j, n) {
+                REP(i, n) {
+                    if (ans[i][j] == '.') continue;
+                    if (ans[i][j] != c[j]) ok = false;
+                    break;
+                }
+            }
+            if (!ok) return;
+            is_ok = true;
+            return;
+        }
+        vector<int> p(n);
+        REP(i, n) p[i] = i;
+        do {
+            bool ok = true;
+            REP(i, n) {
+                if (used[i][p[i]]) {
+                    ok = false;
+                    break;
+                }
+            }
+            if (!ok) continue;
+            REP(i, n) { used[i][p[i]] = true; }
+            string t = "";
+            REP(i, n) { t += s[p[i]]; }
+            ans.push_back(t);
+            dfs(dfs);
+            if (is_ok) return;
+            REP(i, n) { used[i][p[i]] = false; }
+            ans.pop_back();
+        } while (next_permutation(ALL(p)));
+    };
+    dfs(dfs);
+    if (is_ok) {
+        output("Yes");
+        REP(i, n) { output(ans[i]); }
+    } else {
+        output("No");
+    }
 }
