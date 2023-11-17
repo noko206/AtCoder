@@ -30,203 +30,112 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+vector<pair<int, int>> f(vector<pair<int, int>> a, int x) {
+    vector<pair<int, int>> ans, even, odd;
+    REP(i, a.size()) {
+        if (i % 2 == 0) {
+            even.emplace_back(a[i].first, a[i].second);
+        } else {
+            odd.emplace_back(a[i].first, a[i].second);
+        }
+    }
+    vector<pair<ll, int>> even_bit, odd_bit;
+    REP(bit, 1 << even.size()) {
+        ll sum = 0;
+        REP(i, even.size()) {
+            if (bit & (1 << i)) {
+                sum += even[i].first;
+            } else {
+                sum -= even[i].first;
+            }
+        }
+        even_bit.emplace_back(sum, bit);
+    }
+    REP(bit, 1 << odd.size()) {
+        ll sum = 0;
+        REP(i, odd.size()) {
+            if (bit & (1 << i)) {
+                sum += odd[i].first;
+            } else {
+                sum -= odd[i].first;
+            }
+        }
+        odd_bit.emplace_back(sum, bit);
+    }
+    sort(ALL(odd_bit));
+    for (auto [v, bit] : even_bit) {
+        auto it = lower_bound(ALL(odd_bit), make_pair(x - v, -1));
+        if (it == odd_bit.end()) continue;
+        auto [_v, _bit] = *it;
+        if (v + _v == x) {
+            REP(i, even.size()) {
+                if (bit & (1 << i)) {
+                    ans.emplace_back(even[i].first, even[i].second);
+                } else {
+                    ans.emplace_back(-even[i].first, even[i].second);
+                }
+            }
+            REP(i, odd.size()) {
+                if (_bit & (1 << i)) {
+                    ans.emplace_back(odd[i].first, odd[i].second);
+                } else {
+                    ans.emplace_back(-odd[i].first, odd[i].second);
+                }
+            }
+            break;
+        }
+    }
+    return ans;
+}
+
 int main() {
     int n;
     ll x, y;
     cin >> n >> x >> y;
     vector<int> a(n);
     REP(i, n) cin >> a[i];
-    vector<int> even, odd, ansY, ansX;
-    REP(i, n) {
+    REP(i, 3) a.push_back(0);
+    vector<pair<int, int>> even, odd;
+    REP(i, a.size()) {
         if (i % 2 == 0) {
-            even.push_back(a[i]);
+            even.emplace_back(a[i], i);
         } else {
-            odd.push_back(a[i]);
+            odd.emplace_back(a[i], i);
         }
     }
-    if (n <= 3) {
-        even.push_back(0);
-        even.push_back(0);
-        odd.push_back(0);
-        odd.push_back(0);
-    }
-    bool is_ok_y = false, is_ok_x = false;
-    {
-        vector<int> b1, b2;
-        REP(i, even.size()) {
-            if (i % 2 == 0) {
-                b1.push_back(even[i]);
-            } else {
-                b2.push_back(even[i]);
-            }
-        }
-        vector<ll> c1, c2;
-        REP(bit, 1 << b1.size()) {
-            ll sum = 0;
-            REP(i, b1.size()) {
-                if (bit & (1 << i)) {
-                    sum += b1[i];
-                } else {
-                    sum -= b1[i];
-                }
-            }
-            c1.push_back(sum);
-        }
-        REP(bit, 1 << b2.size()) {
-            ll sum = 0;
-            REP(i, b2.size()) {
-                if (bit & (1 << i)) {
-                    sum += b2[i];
-                } else {
-                    sum -= b2[i];
-                }
-            }
-            c2.push_back(sum);
-        }
-        sort(ALL(c2));
-        REP(i, c1.size()) {
-            auto it = lower_bound(ALL(c2), y - c1[i]);
-            if (it == c2.end()) continue;
-            if (*it == y - c1[i]) {
-                vector<ll> d1, d2;
-                is_ok_y = true;
-                REP(j, b1.size()) {
-                    if (i & (1 << j)) {
-                        d1.push_back(b1[j]);
-                    } else {
-                        d1.push_back(-b1[j]);
-                    }
-                }
-                int k = it - c2.begin();
-                REP(j, b2.size()) {
-                    if (k & (1 << j)) {
-                        d2.push_back(b2[j]);
-                    } else {
-                        d2.push_back(-b2[j]);
-                    }
-                }
-                int len = max(d1.size(), d2.size());
-                REP(j, len) {
-                    ansY.push_back(d1[j]);
-                    if (j < d2.size()) ansY.push_back(d2[j]);
-                }
-                break;
-            }
-        }
-    }
-    {
-        vector<int> b1, b2;
-        REP(i, odd.size()) {
-            if (i % 2 == 0) {
-                b1.push_back(odd[i]);
-            } else {
-                b2.push_back(odd[i]);
-            }
-        }
-        vector<ll> c1, c2;
-        REP(bit, 1 << b1.size()) {
-            ll sum = 0;
-            REP(i, b1.size()) {
-                if (bit & (1 << i)) {
-                    sum += b1[i];
-                } else {
-                    sum -= b1[i];
-                }
-            }
-            c1.push_back(sum);
-        }
-        REP(bit, 1 << b2.size()) {
-            ll sum = 0;
-            REP(i, b2.size()) {
-                if (bit & (1 << i)) {
-                    sum += b2[i];
-                } else {
-                    sum -= b2[i];
-                }
-            }
-            c2.push_back(sum);
-        }
-        sort(ALL(c2));
-        REP(i, c1.size()) {
-            auto it = lower_bound(ALL(c2), x - c1[i]);
-            if (it == c2.end()) continue;
-            if (*it == x - c1[i]) {
-                vector<ll> d1, d2;
-                is_ok_x = true;
-                REP(j, b1.size()) {
-                    if (i & (1 << j)) {
-                        d1.push_back(b1[j]);
-                    } else {
-                        d1.push_back(-b1[j]);
-                    }
-                }
-                int k = it - c2.begin();
-                REP(j, b2.size()) {
-                    if (k & (1 << j)) {
-                        d2.push_back(b2[j]);
-                    } else {
-                        d2.push_back(-b2[j]);
-                    }
-                }
-                int len = max(d1.size(), d2.size());
-                REP(j, len) {
-                    ansX.push_back(d1[j]);
-                    if (j < d2.size()) ansX.push_back(d2[j]);
-                }
-                break;
-            }
-        }
-    }
-    if (is_ok_x && is_ok_y) {
+    auto ansY = f(even, y);
+    auto ansX = f(odd, x);
+    if (ansY.size() > 0 && ansX.size() > 0) {
         output("Yes");
-        int len = max(ansX.size(), ansY.size());
-        vector<int> ans;
-        REP(i, len) {
-            ans.push_back(ansY[i]);
-            if (i < ansX.size()) ans.push_back(ansX[i]);
+        vector<int> b(n + 3);
+        for (auto [v, i] : ansY) {
+            b[i] = v;
         }
+        for (auto [v, i] : ansX) {
+            b[i] = v;
+        }
+        string ans = "";
         char now = 'R';
-        string ans_str = "";
         REP(i, n) {
             if (i % 2 == 0) {
-                if (ans[i] > 0) {
-                    if (now == 'R') {
-                        now = 'U';
-                        ans_str += 'L';
-                    } else {
-                        now = 'U';
-                        ans_str += 'R';
-                    }
+                if (b[i] > 0) {
+                    ans += now == 'R' ? 'L' : 'R';
+                    now = 'U';
                 } else {
-                    if (now == 'R') {
-                        now = 'D';
-                        ans_str += 'R';
-                    } else {
-                        now = 'D';
-                        ans_str += 'L';
-                    }
+                    ans += now == 'R' ? 'R' : 'L';
+                    now = 'D';
                 }
             } else {
-                if (ans[i] > 0) {
-                    if (now == 'U') {
-                        now = 'R';
-                        ans_str += 'R';
-                    } else {
-                        now = 'R';
-                        ans_str += 'L';
-                    }
+                if (b[i] > 0) {
+                    ans += now == 'U' ? 'R' : 'L';
+                    now = 'R';
                 } else {
-                    if (now == 'U') {
-                        now = 'L';
-                        ans_str += 'L';
-                    } else {
-                        now = 'L';
-                        ans_str += 'R';
-                    }
+                    ans += now == 'U' ? 'L' : 'R';
+                    now = 'L';
                 }
             }
         }
-        output(ans_str);
+        output(ans);
     } else {
         output("No");
     }
