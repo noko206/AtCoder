@@ -35,34 +35,32 @@ int main() {
     cin >> n >> m;
     string s, t;
     cin >> s >> t;
-    vector<bool> ok(n, false);
-    REP(i, n - m + 1) {
-        if (ok[i]) continue;
-        bool is_ok = true;
-        REP(j, m) {
-            if (s[i + j] != t[j]) {
-                is_ok = false;
+    vector dp(n + 1, vector<bool>(m, false));
+    dp[0][0] = true;
+    REP(i, n) {
+        if (i + m <= n && s[i] == t[0]) {
+            REP(j, m) {
+                if (dp[i][j]) {
+                    dp[i + 1][0] = true;
+                }
             }
         }
-        if (is_ok) {
-            REP(j, m) { ok[i + j] = true; }
+        REP(j, m - 1) {
+            if (i - 1 >= 0 && dp[i][j] && s[i] == t[j + 1]) {
+                dp[i + 1][j + 1] = true;
+            }
         }
-    }
-    REP(i, n) {
-        if (ok[i]) continue;
-        REP(j, m) {
-            if (j > i) continue;
-            if (j + n - m < i) continue;
-            if (s[i] == t[j]) {
-                ok[i] = true;
+        if (dp[i][m - 1]) {
+            REP(j, m) {
+                if (s[i] == t[j]) {
+                    dp[i + 1][j] = true;
+                }
             }
         }
     }
-    bool is_ok = true;
-    REP(i, n) {
-        if (!ok[i]) {
-            is_ok = false;
-        }
-    }
-    YesNo(is_ok);
+    YesNo(dp[n][m - 1]);
+    // REP(j, m) {
+    //     REP(i, n + 1) { cout << (dp[i][j] ? 'Y' : 'N') << " "; }
+    //     cout << endl;
+    // }
 }

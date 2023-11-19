@@ -30,51 +30,34 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
-ll f(ll n, ll x, ll k) {
-    if (k > INF32) return 0;
-    ll l = x;
-    ll r = x;
-    REP(i, k) {
-        if (l > n) return 0;
-        l = l * 2;
-        r = r * 2 + 1;
-    }
-    return max(min(r, n) - l + 1, 0LL);
-}
-
-ll solve(ll n, ll x, ll k) {
-    ll ans = 0;
-    ll pre = -1;
-    while (x > 0) {
-        if (k == 0) {
-            ++ans;
-            break;
-        }
-        ll l = x * 2;
-        ll r = x * 2 + 1;
-        if (l != pre) {
-            ans += f(n, l, k - 1);
-            // output('l', l, k - 1, f(n, l, k - 1));
-        }
-        if (r != pre) {
-            ans += f(n, r, k - 1);
-            // output('r', r, k - 1, f(n, r, k - 1));
-        }
-        pre = x;
-        x /= 2;
-        --k;
-    }
-    return ans;
-}
-
 int main() {
-    int t;
-    cin >> t;
-    vector<ll> ans(t);
-    REP(i, t) {
-        ll n, x, k;
-        cin >> n >> x >> k;
-        ans[i] = solve(n, x, k);
+    int n;
+    cin >> n;
+    vector<int> d(n);
+    REP(i, n) cin >> d[i];
+    vector<int> l(2), c(2), k(2);
+    REP(i, 2) cin >> l[i] >> c[i] >> k[i];
+    vector dp(n + 1, vector<int>(k[0] + 1, INF32));
+    dp[0][0] = 0;
+    REP(i, n) {
+        REP(j, k[0] + 1) {
+            REP(m, k[0] + 1) {
+                if (j + m > k[0]) break;
+                ll cnt = 0;
+                if (m * l[0] < d[i]) {
+                    cnt = ((ll)d[i] - m * l[0] + l[1] - 1) / l[1];
+                }
+                if (dp[i][j] + cnt > k[1]) continue;
+                chmin(dp[i + 1][j + m], dp[i][j] + (int)cnt);
+            }
+        }
     }
-    REP(i, t) output(ans[i]);
+    ll ans = INF64;
+    REP(i, k[0] + 1) {
+        if (dp[n][i] == INF32) continue;
+        ll cnt1 = i;
+        ll cnt2 = dp[n][i];
+        chmin(ans, cnt1 * c[0] + cnt2 * c[1]);
+    }
+    output(ans == INF64 ? -1 : ans);
 }

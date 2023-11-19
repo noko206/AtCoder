@@ -30,6 +30,8 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+using T = tuple<int, int, int>;
+
 int main() {
     int n, m;
     cin >> n >> m;
@@ -38,21 +40,24 @@ int main() {
         int u, v, b, c;
         cin >> u >> v >> b >> c;
         --u, --v;
-        to[v].emplace_back(b / (double)c, u, b, c);
+        to[u].emplace_back(v, b, c);
     }
-    priority_queue<T> pq;
-    pq.push({0, n - 1, 0, 0});
-    vector<double> dp(n, 0);
-    while (!pq.empty()) {
-        auto [value, v, bv, cv] = pq.top();
-        pq.pop();
-        if (value < dp[v]) continue;
-        for (auto [_, u, bu, cu] : to[v]) {
-            if (dp[u] < (bv + bu) / (double)(cv + cu)) {
-                dp[u] = (bv + bu) / (double)(cv + cu);
-                pq.push({dp[u], u, bv + bu, cv + cu});
+    double ok = 0;
+    double ng = 10010010010;
+    REP(_, 100) {
+        double mid = (ok + ng) / 2;
+        vector<double> dp(n, -10010010010);
+        dp[0] = 0;
+        REP(v, n) {
+            for (auto [u, b, c] : to[v]) {
+                chmax(dp[u], dp[v] + b - c * mid);
             }
         }
+        if (dp[n - 1] >= 0) {
+            ok = mid;
+        } else {
+            ng = mid;
+        }
     }
-    output(dp[0]);
+    output(ok);
 }

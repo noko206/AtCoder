@@ -30,51 +30,36 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
-ll f(ll n, ll x, ll k) {
-    if (k > INF32) return 0;
-    ll l = x;
-    ll r = x;
-    REP(i, k) {
-        if (l > n) return 0;
-        l = l * 2;
-        r = r * 2 + 1;
-    }
-    return max(min(r, n) - l + 1, 0LL);
-}
-
-ll solve(ll n, ll x, ll k) {
-    ll ans = 0;
-    ll pre = -1;
-    while (x > 0) {
-        if (k == 0) {
-            ++ans;
-            break;
-        }
-        ll l = x * 2;
-        ll r = x * 2 + 1;
-        if (l != pre) {
-            ans += f(n, l, k - 1);
-            // output('l', l, k - 1, f(n, l, k - 1));
-        }
-        if (r != pre) {
-            ans += f(n, r, k - 1);
-            // output('r', r, k - 1, f(n, r, k - 1));
-        }
-        pre = x;
-        x /= 2;
-        --k;
-    }
-    return ans;
-}
-
 int main() {
-    int t;
-    cin >> t;
-    vector<ll> ans(t);
-    REP(i, t) {
-        ll n, x, k;
-        cin >> n >> x >> k;
-        ans[i] = solve(n, x, k);
+    int n, m;
+    cin >> n >> m;
+    string s, t;
+    cin >> s >> t;
+    REP(i, n - m + 1) {
+        bool is_ok = true;
+        REP(j, m) {
+            if (s[i + j] != '#' && s[i + j] != t[j]) {
+                is_ok = false;
+            }
+        }
+        if (is_ok) {
+            REP(j, m) { s[i + j] = '#'; }
+        }
     }
-    REP(i, t) output(ans[i]);
+    RREP(i, n - m) {
+        bool is_ok = true;
+        REP(j, m) {
+            if (s[i + j] != '#' && s[i + j] != t[j]) {
+                is_ok = false;
+            }
+        }
+        if (is_ok) {
+            REP(j, m) { s[i + j] = '#'; }
+        }
+    }
+    bool is_ok = true;
+    REP(i, n) {
+        if (s[i] != '#') is_ok = false;
+    }
+    YesNo(is_ok);
 }
