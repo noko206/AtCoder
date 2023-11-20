@@ -33,33 +33,38 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 int main() {
     int n, m;
     cin >> n >> m;
-    vector<int> c(n), p(n);
+    vector<int> p(n);
+    vector<double> c(n);
     vector<vector<int>> s(n);
-    vector<double> v(n, 0);
     REP(i, n) {
         cin >> c[i] >> p[i];
-        s[i].resize(p[i]);
+        int cnt = 0;
         REP(j, p[i]) {
-            cin >> s[i][j];
-            v[i] += s[i][j];
-        }
-        v[i] /= (double)p[i];
-    }
-    map<int, double> dp;
-    dp[0] = 0;
-    REP(i, n) {
-        for (auto [cost, value] : dp) {
-            if (dp.find(cost + c[i]) == dp.end()) {
-                dp[cost + c[i]] = value + v[i];
-            } else {
-                chmax(dp[cost + c[i]], value + v[i]);
+            int tmp;
+            cin >> tmp;
+            if (tmp == 0) {
+                ++cnt;
+                continue;
             }
-            if (value + v[i] >= m) break;
+            s[i].push_back(tmp);
+        }
+        c[i] *= p[i] / (double)(p[i] - cnt);
+        p[i] -= cnt;
+    }
+    vector<double> dp(m + 1, 1001001001);
+    dp[0] = 0;
+    REP(i, 1, m + 1) {
+        REP(j, n) {
+            double sum = 0;
+            REP(k, p[j]) {
+                if (i - s[j][k] >= 0) {
+                    sum += (c[j] + dp[i - s[j][k]]) / (double)p[j];
+                } else {
+                    sum += c[j] / (double)p[j];
+                }
+            }
+            chmin(dp[i], sum);
         }
     }
-    double ans = (double)INF32;
-    for (auto [cost, value] : dp) {
-        if (value >= m) chmin(ans, (double)cost);
-    }
-    output(ans);
+    output(dp[m]);
 }

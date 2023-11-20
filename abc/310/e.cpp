@@ -30,19 +30,23 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
-int op(int a, int b) {
-    if (a == 1 && b == 1) return 0;
-    return 1;
-}
-
-int e() { return 0; }
+int f(int a, int b) { return a == 1 && b == 1 ? 0 : 1; }
 
 int main() {
     int n;
     string s;
     cin >> n >> s;
-	vector<int> a(n);
-	REP(i, n) a[i] = s[i] - '0';
-    segtree<int, op, e> seg(a);
-	
+    vector<ll> dp(2, 0);
+    ++dp[s[0] - '0'];
+    ll ans = dp[1];
+    REP(i, n - 1) {
+        vector<ll> cnt(2, 0);
+        cnt[f(0, s[i + 1] - '0')] += dp[0];
+        cnt[f(1, s[i + 1] - '0')] += dp[1];
+        dp[0] = cnt[0];
+        dp[1] = cnt[1];
+        ++dp[s[i + 1] - '0'];
+        ans += dp[1];
+    }
+    output(ans);
 }

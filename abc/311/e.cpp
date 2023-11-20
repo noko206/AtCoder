@@ -30,38 +30,81 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+template <class T> struct CumulativeSum2d {
+   public:
+    CumulativeSum2d(int h, int w)
+        : h(h), w(w), data(h + 1, vector<T>(w + 1, 0)){};
+    CumulativeSum2d(const vector<vector<T>> &v)
+        : h((int)v.size()), w((int)v[0].size()) {
+        data.resize(h + 1);
+        data[0].resize(w + 1, 0);
+        for (int i = 0; i < h; ++i) {
+            data[i + 1].resize(w + 1, 0);
+            for (int j = 0; j < w; ++j) {
+                data[i + 1][j + 1] = v[i][j];
+            }
+        }
+    };
+
+    void add(int i, int j, T x) {
+        assert(0 <= i && i < h);
+        assert(0 <= j && j < w);
+        data[i + 1][j + 1] += x;
+    }
+
+    void build() {
+        for (int i = 0; i < h; ++i) {
+            for (int j = 0; j < w; ++j) {
+                data[i + 1][j + 1] +=
+                    data[i + 1][j] + data[i][j + 1] - data[i][j];
+            }
+        }
+    }
+
+    // [si, gi), [sj, gj)
+    T sum(int si, int sj, int gi, int gj) {
+        assert(0 <= si && si <= gi && gi <= h);
+        assert(0 <= sj && sj <= gj && gj <= w);
+        return data[gi][gj] - data[si][gj] - data[gi][sj] + data[si][sj];
+    }
+
+   private:
+    int h, w;
+    vector<vector<T>> data;
+};
+
 int main() {
     int h, w, n;
     cin >> h >> w >> n;
-    set<pair<int, int>> hw, wh;
+    CumulativeSum2d<int> cs(h, w);
+    vector hole(h, vector<bool>(w, false));
     REP(i, n) {
         int a, b;
         cin >> a >> b;
         --a, --b;
-        hw.insert({a, b});
-        wh.insert({b, a});
+        cs.add(a, b, 1);
+        hole[a][b] = true;
     }
+    cs.build();
     ll ans = 0;
     REP(i, h) {
         REP(j, w) {
-            auto it1 = hw.lower_bound({i, j});
-            auto it2 = wh.lower_bound({j, i});
-            int tmp = min(h - i, w - j);
-            if (it1 != hw.end()) {
-                auto [y, x] = *it1;
-                if (y >= i && x >= j) {
-                    chmin(tmp, max(abs(y - i), abs(x - j)));
-                    if (y == i && x == j) hw.erase(it1);
+            if (hole[i][j]) continue;
+            int ok = 0;
+            int ng = min(h, w);
+            while (ng - ok != 1) {
+                int mid = (ok + ng) / 2;
+                if (i + mid >= h || j + mid >= w) {
+                    ng = mid;
+                    continue;
+                }
+                if (cs.sum(i, j, i + mid + 1, j + mid + 1) == 0) {
+                    ok = mid;
+                } else {
+                    ng = mid;
                 }
             }
-            if (it2 != wh.end()) {
-                auto [x, y] = *it2;
-                if (y >= i && x >= j) {
-                    chmin(tmp, max(abs(y - i), abs(x - j)));
-                    if (y == i && x == j) wh.erase(it2);
-                }
-            }
-            ans += tmp;
+            ans += ok + 1;
         }
     }
     output(ans);
