@@ -30,6 +30,44 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+
 int main() {
-    
+    int n, t, m;
+    cin >> n >> t >> m;
+    map<pair<int, int>, bool> mp;
+    REP(i, m) {
+        int a, b;
+        cin >> a >> b;
+        --a, --b;
+        mp[{a, b}] = true;
+        mp[{b, a}] = true;
+    }
+    int ans = 0;
+    vector<vector<int>> s;
+    auto dfs = [&](auto &dfs, int v = 0) -> void {
+        if (v == n) {
+            if (s.size() != t) return;
+            REP(i, t) {
+                REP(j, s[i].size()) {
+                    REP(k, j) {
+                        if (mp.find({s[i][j], s[i][k]}) != mp.end()) {
+                            return;
+                        }
+                    }
+                }
+            }
+            ++ans;
+            return;
+        }
+        REP(i, s.size()) {
+            s[i].push_back(v);
+            dfs(dfs, v + 1);
+            s[i].pop_back();
+        }
+        s.push_back({v});
+        dfs(dfs, v + 1);
+        s.pop_back();
+    };
+    dfs(dfs);
+    output(ans);
 }

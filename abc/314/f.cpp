@@ -30,74 +30,41 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
-template <class T> struct CumulativeSum {
-   public:
-    CumulativeSum(int n) : n(n), data(n + 1, 0){};
-    CumulativeSum(const vector<T> &v) : n((int)v.size()) {
-        data.resize(n + 1, 0);
-        for (int i = 0; i < n; ++i) {
-            data[i + 1] = v[i];
-        }
-    };
-
-    void add(int idx, T x) {
-        assert(0 <= idx && idx < n);
-        data[idx + 1] += x;
-    }
-
-    void build() {
-        for (int i = 0; i < n; ++i) {
-            data[i + 1] += data[i];
-        }
-    }
-
-    // [l, r)
-    T sum(int l, int r) {
-        assert(0 <= l && l <= r && r <= n);
-        return data[r] - data[l];
-    }
-
-   private:
-    int n;
-    vector<T> data;
-};
+using mint = modint998244353;
 
 int main() {
-    int n, m;
-    cin >> n >> m;
-    vector<int> a, b, c;
-    REP(i, n) {
-        int n, x;
-        cin >> n >> x;
-        if (n == 0) {
-            a.push_back(x);
-        } else if (n == 1) {
-            b.push_back(x);
-        } else {
-            c.push_back(x);
-        }
+    int n;
+    cin >> n;
+    dsu uf(n);
+    vector<vector<int>> to(2 * n - 1);
+    vector<int> root(n);
+    vector<int> size(2 * n - 1, 1);
+    REP(i, n) root[i] = i;
+    int id = n;
+    REP(i, n - 1) {
+        int p, q;
+        cin >> p >> q;
+        --p, --q;
+        int v = root[uf.leader(p)];
+        int u = root[uf.leader(q)];
+        to[id].push_back(v);
+        to[id].push_back(u);
+        uf.merge(p, q);
+        root[uf.leader(p)] = id;
+        size[id] = size[v] + size[u];
+        ++id;
     }
-    sort(ALLR(a));
-    CumulativeSum<ll> cs(a.size());
-    REP(i, a.size()) cs.add(i, (ll)a[i]);
-    cs.build();
-    sort(ALLR(b));
-    sort(ALL(c));
-    ll ans = cs.sum(0, min((int)a.size(), m));
-    ll b_sum = 0;
-    int c_cnt = 0;
-    int c_nokori = 0;
-    REP(i, b.size()) {
-        if (c_nokori == 0) {
-            if (c.size() == 0) break;
-            c_nokori = c.back();
-            c.pop_back();
-            ++c_cnt;
-        }
-        b_sum += b[i];
-        --c_nokori;
-        if (m - (i + 1) - c_cnt < 0) break;
-        chmax(ans, b_sum + cs.sum(0, min(m - (i + 1) - c_cnt, (int)a.size())));
-    }
-    output(ans);
+    vector<mint> dp(2 * n - 1, 0);
+    auto dfs = [&](auto &dfs, int p) -> void {
+        if (to[p].size() == 0) return;
+        assert(to[p].size() == 2);
+        int v = to[p][0];
+        int u = to[p][1];
+        dp[v] = size[v] * inv_mod(size[v] + size[u], 998244353) + dp[p];
+        dp[u] = size[u] * inv_mod(size[v] + size[u], 998244353) + dp[p];
+        dfs(dfs, v);
+        dfs(dfs, u);
+    };
+    dfs(dfs, 2 * n - 2);
+    REP(i, n) output(dp[i].val());
 }
