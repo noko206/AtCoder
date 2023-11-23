@@ -33,44 +33,36 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 int main() {
     int n, k;
     cin >> n >> k;
-    vector<int> res(n);
-    REP(i, n) {
-        cout << '?';
-        REP(j, k) { cout << ' ' << ((i + j) % n) + 1; }
+    vector<int> ans(n), tmp(k + 1);
+    REP(i, k + 1) {
+        cout << "?";
+        REP(j, k + 1) {
+            if (i == j) continue;
+            cout << " " << j + 1;
+        }
         cout << endl;
-        cin >> res[i];
-    }
-    vector<int> ans(n, -1);
-    // とりあえず0にしておく
-    ans[0] = 0;
-    int j = 0;
-    while (ans[(j + k) % 2] == -1) {
-        int p = abs(res[j] - res[(j + 1) % n]) % 2;
-        if (p == 0) {
-            ans[j + k] = ans[j];
-        } else {
-            ans[j + k] = (ans[j] + 1) % 2;
+        cin >> tmp[i];
+        int sum = 0;
+        REP(j, k + 1) { sum += tmp[j]; }
+        sum %= 2;
+        REP(j, k + 1) {
+            ans[j] = sum - tmp[j];
+            if (ans[j] < 0) ans[j] += 2;
         }
-        j += k;
     }
-    // 整合性チェック
-    int p = 0;
-    REP(i, k) { p += ans[i]; }
-    p %= 2;
-    bool is_ok = true;
-    REP(i, n) {
-        if (p != res[i]) {
-            is_ok = false;
-        }
-        p -= ans[i];
-        p += ans[(i + k) % n];
-        p = (p + 2) % 2;
+    REP(i, k + 1, n) {
+        cout << "?";
+        REP(j, k) { cout << " " << i + 1 - j; }
+        cout << endl;
+        int t;
+        cin >> t;
+        int sum = 0;
+        REP(j, k - 1) { sum += ans[i - 1 - j]; }
+        sum %= 2;
+        ans[i] = sum - t;
+        if (ans[i] < 0) ans[i] += 2;
     }
-    if (!is_ok) {
-        REP(i, n) { ans[i] = ans[i] ? 0 : 1; }
-    }
-    // 出力
-    cout << '!';
-    REP(i, n) { cout << ' ' << ans[i]; }
+    cout << "!";
+    REP(i, n) { cout << " " << ans[i]; }
     cout << endl;
 }

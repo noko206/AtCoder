@@ -30,6 +30,62 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+using mint = modint998244353;
+
+vector<pair<char, int>> run_length_encode(string s) {
+    vector<pair<char, int>> ans;
+    int i = 0, j = 0, n = s.length();
+    while (i < n) {
+        while (s[i] == s[j] && j < n) {
+            ++j;
+        }
+        ans.push_back({s[i], j - i});
+        i = j;
+    }
+    return ans;
+}
+
 int main() {
-    //
+    int n;
+    string s;
+    cin >> n >> s;
+    auto e = run_length_encode(s);
+    bool is_ok = true;
+    REP(i, e.size() - 1) {
+        auto [c1, cnt1] = e[i];
+        auto [c2, cnt2] = e[i + 1];
+        if (c1 != '1' && c2 != '1') is_ok = false;
+    }
+    REP(i, e.size()) {
+        auto [c, cnt] = e[i];
+        if (c != '1' && cnt >= 2) is_ok = false;
+    }
+    if (!is_ok) {
+        output(-1);
+        return 0;
+    }
+    mint ans = 0;
+    auto [c0, cnt0] = e[0];
+    bool first_one = false;
+    if (c0 == '1') {
+        e.insert(e.begin(), {'a', 0});
+        first_one = true;
+    }
+    auto [ce, cnte] = e[e.size() - 1];
+    if (ce == '1') {
+        ans += cnte;
+        e.pop_back();
+    }
+    while (e.size() >= 2) {
+        auto [cR, cntR] = e.back();
+        e.pop_back();
+        auto [cL, cntL] = e.back();
+        e.pop_back();
+        // 1ではない右端の数字を削除をカウント
+        ++ans;
+        mint one_cnt = cntL + ans * (cR - '0' - 1);
+        ans += one_cnt;
+    }
+    if (first_one) --ans;
+    output(ans.val());
 }

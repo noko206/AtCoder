@@ -1,120 +1,71 @@
+// clang-format off
 #include <bits/stdc++.h>
 using namespace std;
+#if __has_include(<atcoder/all>)
+#include <atcoder/all>
+using namespace atcoder;
+#endif
 
 #define _overload3(_1,_2,_3,name,...) name
 #define _REP(i,n) REPI(i,0,n)
 #define REPI(i,a,b) for(int i=int(a);i<int(b);++i)
 #define REP(...) _overload3(__VA_ARGS__,REPI,_REP,)(__VA_ARGS__)
+#define _RREP(i,n) RREPI(i,n,0)
+#define RREPI(i,a,b) for(int i=int(a);i>=int(b);--i)
+#define RREP(...) _overload3(__VA_ARGS__,RREPI,_RREP,)(__VA_ARGS__)
 #define ALL(a) (a).begin(),(a).end()
 #define ALLR(a) (a).rbegin(),(a).rend()
 typedef long long ll;
 const int INF32 = 1001001001;
 const long long INF64 = 1001001001001001001;
-template<class T> bool chmax(T &a, const T &b) { if (a<b) { a=b; return 1; } return 0; }
-template<class T> bool chmin(T &a, const T &b) { if (a>b) { a=b; return 1; } return 0; }
+struct Init { Init() { ios::sync_with_stdio(0); cin.tie(0); cout << setprecision(15); }} init;
+template<class T> bool chmax(T &a, const T &b) { if (a < b) { a = b; return true; } return false; }
+template<class T> bool chmin(T &a, const T &b) { if (a > b) { a = b; return true; } return false; }
+template<class T> T gcd(T x, T y){ return (x % y) ? gcd(y, x % y) : y; }
+template<class T> T lcm(T x, T y){ return x / gcd(x, y) * y; }
+template<class T, class... Ts> void output(const T& a, const Ts&... b) { cout << a; (cout << ... << (cout << ' ', b)); cout << '\n'; }
+template<class T> void output(vector<T> v) { for (auto u : v) cout << u << ' '; cout << '\n'; };
+void yesno(bool is_ok) { cout << (is_ok ? "yes" : "no") << '\n'; }
+void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
+void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
-int main(){
-	int t;
-	cin >> t;
-	vector<int> ans;
-	while(t--){
-		int n, m;
-		cin >> n >> m;
-		vector<int> c(n);
-		REP(i, n) cin >> c[i];
-		vector<vector<int>> to(n);
-		REP(i, m){
-			int u, v;
-			cin >> u >> v;
-			--u; --v;
-			to[u].push_back(v);
-			to[v].push_back(u);
-		}
-		vector<int> takahashi(n, -1);
-		vector<int> aoki(n, -1);
-		takahashi[0] = 0;
-		aoki[n - 1] = 0;
-		queue<int> takahashi_q, aoki_q;
-		takahashi_q.push(0);
-		aoki_q.push(n - 1);
-		bool takahashi_red = false;
-		bool takahashi_blue = false;
-		bool aoki_red = false;
-		bool aoki_blue = false;
-		int cnt = 0;
-		int num = -1;
-		while(2 * m > cnt && !takahashi_q.empty() && !aoki_q.empty()){
-			int k = takahashi_q.size();
-			for(int i = 0; i < k; ++i) {
-				int v = takahashi_q.front(); takahashi_q.pop();
-				for (int u : to[v]){
-					if(c[u] == 0) takahashi_red = true;
-					else takahashi_blue = true;
-				}
-				takahashi_q.push(v);
-			}
-			k = aoki_q.size();
-			for(int i = 0; i < k; ++i) {
-				int v = aoki_q.front(); aoki_q.pop();
-				for (int u : to[v]){
-					if(c[u] == 0) aoki_red = true;
-					else aoki_blue = true;
-				}
-				aoki_q.push(v);
-			}
-			bool takahashi_ok = false;
-			bool aoki_ok = false;
-			k = takahashi_q.size();
-			for(int i = 0; i < k; ++i) {
-				int v = takahashi_q.front(); takahashi_q.pop();
-				for (int u : to[v]){
-					if(c[u] == 0) {
-						if(aoki_blue) {
-							takahashi_q.push(u);
-							if(u == n - 1) {
-								takahashi_ok = true;
-							}
-						}
-					}
-					else {
-						if(aoki_red) {
-							takahashi_q.push(u);
-							if(u == n - 1){
-								takahashi_ok = true;
-							}
-						}
-					}
-				}
-			}
-			k = aoki_q.size();
-			for(int i = 0; i < k; ++i) {
-				int v = aoki_q.front(); aoki_q.pop();
-				for (int u : to[v]){
-					if(c[u] == 0) {
-						if(takahashi_blue) {
-							aoki_q.push(u);
-							if(u == 0) {
-								aoki_ok = true;
-							}
-						}
-					}
-					else {
-						if(takahashi_red) {
-							aoki_q.push(u);
-							if(u == 0){
-								aoki_ok = true;
-							}
-						}
-					}
-				}
-			}
-			++cnt;
-			if(takahashi_ok && aoki_ok){
-				num = cnt;
-				break;
-			}
-		}
-		ans.push_back(num);
-	}
-	for(int v: ans) cout << v << endl;
+// clang-format on
+int solve() {
+    int n, m;
+    cin >> n >> m;
+    vector<int> c(n);
+    REP(i, n) cin >> c[i];
+    vector<vector<int>> to(n);
+    REP(i, m) {
+        int u, v;
+        cin >> u >> v;
+        --u, --v;
+        to[u].push_back(v);
+        to[v].push_back(u);
+    }
+    vector dist(n, vector<int>(n, INF32));
+    dist[0][n - 1] = 0;
+    queue<pair<int, int>> q;
+    q.push({0, n - 1});
+    while (!q.empty()) {
+        auto [u, v] = q.front();
+        q.pop();
+        for (int nu : to[u]) {
+            for (int nv : to[v]) {
+                if (c[nu] == c[nv]) continue;
+                if (chmin(dist[nu][nv], dist[u][v] + 1)) {
+                    q.push({nu, nv});
+                }
+            }
+        }
+    }
+    return dist[n - 1][0] == INF32 ? -1 : dist[n - 1][0];
+}
+
+int main() {
+    int t;
+    cin >> t;
+    vector<int> ans(t);
+    REP(i, t) { ans[i] = solve(); }
+    REP(i, t) output(ans[i]);
 }

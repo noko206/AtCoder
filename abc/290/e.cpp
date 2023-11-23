@@ -31,5 +31,24 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
 int main() {
-    //
+    int n;
+    cin >> n;
+    vector<int> a(n);
+    REP(i, n) cin >> a[i];
+    ll ans = 0;
+    REP(f, 2) {
+        map<int, vector<int>> mp;
+        REP(i, n) { mp[a[i]].push_back(i); }
+        REP(l, n) {
+            int r = n - (l + 1);
+            if (f) ++r;
+            if (l > r) break;
+            int cntL = lower_bound(ALL(mp[a[l]]), l) - mp[a[l]].begin();
+            int cntR = lower_bound(ALL(mp[a[l]]), r) - mp[a[l]].begin();
+            int cnt = (r - l) - (cntR - cntL);
+            ans += (ll)cnt * (l + 1);
+        }
+        reverse(ALL(a));
+    }
+    output(ans);
 }
