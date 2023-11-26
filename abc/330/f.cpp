@@ -30,90 +30,41 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
-template <class T> struct CumulativeSum {
-   public:
-    CumulativeSum(int n) : n(n), data(n + 1, 0){};
-    CumulativeSum(const vector<T> &v) : n((int)v.size()) {
-        data.resize(n + 1, 0);
-        for (int i = 0; i < n; ++i) {
-            data[i + 1] = v[i];
-        }
-    };
-
-    void add(int idx, T x) {
-        assert(0 <= idx && idx < n);
-        data[idx + 1] += x;
-    }
-
-    void build() {
-        for (int i = 0; i < n; ++i) {
-            data[i + 1] += data[i];
-        }
-    }
-
-    // [l, r)
-    T sum(int l, int r) {
-        assert(0 <= l && l <= r && r <= n);
-        return data[r] - data[l];
-    }
-
-   private:
-    int n;
-    vector<T> data;
-};
-
-ll solve(const vector<int> &x, ll y) {
-    int n = x.size();
-    ll ans = INF64;
-    vector<ll> tot(n + 1, 0);
-    REP(i, n) tot[i + 1] = tot[i] + x[i];
-    REP(i, n) {
-        // 左側
-        {
-            ll l = x[i] - y;
-            ll r = x[i];
-            ll sum = 0;
-            {
-                auto it = upper_bound(ALL(x), r);
-                if (it != x.end()) {
-                    int idx = it - x.begin();
-                    sum += tot[n] - tot[idx] - (n - idx) * r;
-                }
+ll solve(const map<int, int> &mp, int r) {
+    auto itL = mp.begin();
+    auto itR = mp.end();
+    --itR;
+    auto [numLF, _tmpL] = *itL;
+    auto [numRF, _tmpR] = *itR;
+    ll ans = 0;
+    int sumL = 0, sumR = 0, left = numLF, right = numRF;
+    while (right - left > r) {
+        auto [numL, cntL] = *itL;
+        auto [numR, cntR] = *itR;
+        if (sumL + cntL < sumR + cntR) {
+            // 左側を詰める
+            ++itL;
+            auto [numLN, cntLN] = *itL;
+            sumL += cntL;
+            if (numR - numLN > r) {
+                ans += (ll)(numLN - numL) * sumL;
+            } else {
+                ans += (ll)((numR - numL) - r) * sumL;
             }
-            {
-                auto it = lower_bound(ALL(x), l);
-                if (it != x.begin()) {
-                    --it;
-                    int idx = it - x.begin();
-                    sum += l * (idx + 1) - tot[idx];
-                }
+            left = numLN;
+        } else {
+            // 右側を詰める
+            --itR;
+            auto [numRN, cntRN] = *itR;
+            sumR += cntR;
+            if (numRN - numL > r) {
+                ans += (ll)(numR - numRN) * sumR;
+            } else {
+                ans += (ll)((numR - numL) - r) * sumR;
             }
-            assert(sum >= 0);
-            chmin(ans, sum);
+            right = numRN;
         }
-        // 右側
-        {
-            ll l = x[i];
-            ll r = x[i] + y;
-            ll sum = 0;
-            {
-                auto it = upper_bound(ALL(x), r);
-                if (it != x.end()) {
-                    int idx = it - x.begin();
-                    sum += tot[n] - tot[idx] - (n - idx) * r;
-                }
-            }
-            {
-                auto it = lower_bound(ALL(x), l);
-                if (it != x.begin()) {
-                    --it;
-                    int idx = it - x.begin();
-                    sum += l * (idx + 1) - tot[idx];
-                }
-            }
-            assert(sum >= 0);
-            chmin(ans, sum);
-        }
+        if (ans > 1001001001001001) break;
     }
     return ans;
 }
@@ -124,24 +75,16 @@ int main() {
     cin >> n >> k;
     vector<int> x(n), y(n);
     REP(i, n) cin >> x[i] >> y[i];
-    sort(ALL(x));
-    sort(ALL(y));
-    if (n == 1) {
-        output(0);
-        return 0;
+    map<int, int> mpX, mpY;
+    REP(i, n) {
+        ++mpX[x[i]];
+        ++mpY[y[i]];
     }
-    ll ok = INF64;
-    ll ng = -1;
+    int ok = INF32;
+    int ng = -1;
     while (ok - ng != 1) {
-        ll mid = (ok + ng) / 2;
-        ll cntX = solve(x, mid);
-        ll cntY = solve(y, mid);
-        bool is_ok = true;
-        if (cntX > k || cntY > k)
-            is_ok = false;
-        else if (cntX + cntY > k)
-            is_ok = false;
-        if (is_ok) {
+        int mid = (ok + ng) / 2;
+        if (solve(mpX, mid) + solve(mpY, mid) <= k) {
             ok = mid;
         } else {
             ng = mid;
