@@ -1,3 +1,4 @@
+// clang-format off
 #include <bits/stdc++.h>
 using namespace std;
 #if __has_include(<atcoder/all>)
@@ -17,59 +18,76 @@ using namespace atcoder;
 typedef long long ll;
 const int INF32 = 1001001001;
 const long long INF64 = 1001001001001001001;
-struct Init { Init() { ios::sync_with_stdio(0); cin.tie(0); }} init;
+struct Init { Init() { ios::sync_with_stdio(0); cin.tie(0); cout << setprecision(15); }} init;
 template<class T> bool chmax(T &a, const T &b) { if (a < b) { a = b; return true; } return false; }
 template<class T> bool chmin(T &a, const T &b) { if (a > b) { a = b; return true; } return false; }
+template<class T> T gcd(T x, T y){ return (x % y) ? gcd(y, x % y) : y; }
+template<class T> T lcm(T x, T y){ return x / gcd(x, y) * y; }
 template<class T, class... Ts> void output(const T& a, const Ts&... b) { cout << a; (cout << ... << (cout << ' ', b)); cout << '\n'; }
 template<class T> void output(vector<T> v) { for (auto u : v) cout << u << ' '; cout << '\n'; };
 void yesno(bool is_ok) { cout << (is_ok ? "yes" : "no") << '\n'; }
 void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
-int main(){
-	int n, m;
-	ll k;
-	cin >> n >> m >> k;
-	string s;
-	cin >> s;
-	int x_cnt = 0;
-	REP(i, n){
-		if(s[i] == 'x') ++x_cnt;
-	}
-	if(x_cnt * m == k){
-		output((ll)n * m);
-		return 0;
-	}
-	ll kukan = k / x_cnt;
-	ll amari = k % x_cnt;
-	ll ans = 0;
-	if(m - kukan == 1){
-		--kukan;
-		amari += x_cnt;
-	}
-	if(kukan > 0) ans += kukan * n;
-	if(m != 1){
-		s += s;
-		n = s.length();
-	}
-	int j = 0;
-	int mx = 0;
-	int cnt = 0;
-	REP(i, n){
-		while(j < n){
-			if(s[j] == 'x'){
-				++cnt;
-			}
-			++j;
-			if(cnt > amari) break;
-		}
-		if(i == 0 || j == n || (i < n / 2 && n / 2 <= j)){
-			chmax(mx, j - i - 1);
-		}
-		if(s[i] == 'x'){
-			--cnt;
-		}
-	}
-	ans += mx;
-	output(ans);
+// clang-format on
+template <class T> struct CumulativeSum {
+   public:
+    CumulativeSum(int n) : n(n), data(n + 1, 0){};
+    CumulativeSum(const vector<T> &v) : n((int)v.size()) {
+        data.resize(n + 1, 0);
+        for (int i = 0; i < n; ++i) {
+            data[i + 1] = v[i];
+        }
+    };
+
+    void add(int idx, T x) {
+        assert(0 <= idx && idx < n);
+        data[idx + 1] += x;
+    }
+
+    void build() {
+        for (int i = 0; i < n; ++i) {
+            data[i + 1] += data[i];
+        }
+    }
+
+    // [l, r)
+    T sum(int l, int r) {
+        assert(0 <= l && l <= r && r <= n);
+        return data[r] - data[l];
+    }
+
+   private:
+    int n;
+    vector<T> data;
+};
+
+int main() {
+    int n, m;
+    ll k;
+    string s;
+    cin >> n >> m >> k >> s;
+    CumulativeSum<int> cs(n);
+    REP(i, n) {
+        if (s[i] == 'x') {
+            cs.add(i, 1);
+        }
+    }
+    cs.build();
+    ll ans = 0;
+    REP(l, n) {
+        ll ok = l;
+        ll ng = (ll)n * m + 1;
+        while (ng - ok != 1) {
+            ll mid = (ok + ng) / 2;
+            ll w = mid / n * cs.sum(0, n) + cs.sum(0, (mid % n)) - cs.sum(0, l);
+            if (w <= k) {
+                ok = mid;
+            } else {
+                ng = mid;
+            }
+        }
+        chmax(ans, ok - l);
+    }
+    output(ans);
 }

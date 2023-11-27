@@ -30,51 +30,25 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
-struct RollingHash {
-   public:
-    RollingHash(const string &s, int base = 100, int mod = 998244353)
-        : base(base), mod(mod), hash(s.length() + 1) {
-        mint::set_mod(mod);
-        build(s);
-    }
-
-    // [l, r)
-    int query(int l, int r) {
-        assert(0 <= l && l <= r && r < hash.size());
-        mint ans = hash[r] - (hash[l] * pow_mod(base, r - l, mod));
-        return ans.val();
-    }
-
-   private:
-    using mint = modint;
-    int base;
-    int mod;
-    vector<mint> hash;
-
-    void build(const string &s) {
-        int n = s.length();
-        hash[0] = 0;
-        for (int i = 0; i < n; ++i) {
-            hash[i + 1] = hash[i] * base + s[i];
-        }
-    }
-};
-
 int main() {
     int n;
-    string t;
-    cin >> n >> t;
-    string x = t.substr(0, n);
-    string y = t.substr(n);
-    reverse(ALL(y));
-    RollingHash hashX(x + y), hashY(y + x);
-    REP(i, n + 1) {
-        if (hashX.query(0, i) != hashX.query(n * 2 - i, n * 2)) continue;
-        if (hashY.query(0, n - i) != hashY.query(n + i, n * 2)) continue;
-        string ans = t.substr(0, i) + t.substr(n + i, n * 2);
-        output(ans);
-        output(i);
-        return 0;
+    cin >> n;
+    vector<int> a(n);
+    REP(i, n) cin >> a[i];
+    vector<ll> b(n + 1, 0);
+    REP(r, n) {
+        ll sum = 0;
+        REP(l, r + 1) sum += a[min(l, r - l)];
+        b[r + 1] = sum;
     }
-    output(-1);
+    vector dp(n + 1, vector<ll>(n, -INF64));
+    dp[0][0] = 0;
+    REP(i, n) {
+        REP(j, n) {
+            if (dp[i][j] < 0) continue;
+            if (j + 1 < n) chmax(dp[i + 1][j + 1], dp[i][j]);
+            chmax(dp[i + 1][0], dp[i][j] + b[j]);
+        }
+    }
+    output(dp[n][0]);
 }
