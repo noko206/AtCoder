@@ -33,26 +33,19 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 int main() {
     int n, m;
     cin >> n >> m;
-    vector<int> a(n);
-    REP(i, n) cin >> a[i];
-    auto f = [m](int x, int y) -> int {
-        int ans = pow_mod(x, y, m) + pow_mod(y, x, m);
-        return ans % m;
-    };
-    vector<tuple<int, int, int>> edges;
-    REP(i, n) {
-        REP(j, n) {
-            if (i == j) continue;
-            edges.emplace_back(f(a[i], a[j]), i, j);
-        }
+    vector<int> a(m);
+    REP(i, m) cin >> a[i], --a[i];
+    vector<int> l(n), r(n);
+    REP(i, n) l[i] = i, r[i] = i;
+    RREP(i, m - 1) swap(r[a[i]], r[a[i] + 1]);
+    vector<int> ans(m);
+    int idx = 0;
+    REP(i, m) {
+        swap(r[a[i]], r[a[i] + 1]);
+        ans[i] = r[idx] + 1;
+        swap(l[a[i]], l[a[i] + 1]);
+        if (l[a[i]] == 0) idx = a[i];
+        if (l[a[i] + 1] == 0) idx = a[i] + 1;
     }
-    sort(ALLR(edges));
-    dsu uf(n);
-    ll ans = 0;
-    for (auto [w, i, j] : edges) {
-        if (uf.same(i, j)) continue;
-        ans += w;
-        uf.merge(i, j);
-    }
-    output(ans);
+    REP(i, m) output(ans[i]);
 }
