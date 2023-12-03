@@ -30,48 +30,68 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
-int dp[1005][2][2][2];  // 真ん中、上、下
+int mod = 998244353;
+
+struct Hash {
+    ll hash;
+    ll base_pow;
+};
+
+Hash op(Hash l, Hash r) {
+    Hash res;
+    res.hash = (l.hash * r.base_pow + r.hash) % mod;
+    res.base_pow = l.base_pow * r.base_pow % mod;
+    return res;
+}
+
+Hash e() {
+    Hash res;
+    res.hash = 0;
+    res.base_pow = 1;
+    return res;
+}
 
 int main() {
-    int h, w;
-    cin >> h >> w;
-    vector v(h, vector<int>(w));
-    REP(i, h) REP(j, w) cin >> v[i][j];
-    REP(i, h) REP(a, 2) REP(b, 2) REP(c, 2) dp[i + 1][a][b][c] = INF32;
-    REP(i, h) {
-        REP(a, 2) {
-            bool is_ok = true;
-            if (!is_ok) continue;
-            REP(b, 2) REP(c, 2) {
-                bool is_ok = true;
-                REP(j, w) {
-                    bool ok = false;
-                    if (i - 1 >= 0 &&
-                        (v[i][j] + a) % 2 == (v[i - 1][j] + b) % 2)
-                        ok = true;
-                    if (i + 1 < h && (v[i][j] + a) % 2 == (v[i + 1][j] + c) % 2)
-                        ok = true;
-                    if (j - 1 >= 0 && v[i][j] == v[i][j - 1]) ok = true;
-                    if (j + 1 < w && v[i][j] == v[i][j + 1]) ok = true;
-                    if (!ok) {
-                        is_ok = false;
-                        break;
-                    }
-                }
-                if (!is_ok) continue;
-                REP(k, 2) {
-                    chmin(dp[i + 1][a][b][c], dp[i][b][k][a] + a);
-                    // if (i == 1 && dp[i][b][k][a] + a == 0) {
-                    //     output(i, a, b, c, k);
-                    // }
-                }
-            }
+    int n, q;
+    cin >> n >> q;
+    string s;
+    cin >> s;
+    segtree<Hash, op, e> segL(n);
+    segtree<Hash, op, e> segR(n);
+    REP(i, n) {
+        {
+            Hash res;
+            res.hash = s[i];
+            res.base_pow = 100;
+            segL.set(i, res);
+        }
+        {
+            Hash res;
+            res.hash = s[n - i - 1];
+            res.base_pow = 100;
+            segR.set(i, res);
         }
     }
-    int ans = INF32;
-    REP(i, 2) REP(j, 2) REP(k, 2) chmin(ans, dp[h][i][j][k]);
-    output(ans == INF32 ? -1 : ans);
-    // REP(i, h + 1) REP(a, 2) REP(b, 2) REP(c, 2) {
-    //     output(i, a, b, c, dp[i][a][b][c]);
-    // }
+    vector<bool> ans;
+    REP(i, q) {
+        int t;
+        cin >> t;
+        if (t == 1) {
+            int x;
+            char c;
+            cin >> x >> c;
+            --x;
+            Hash res;
+            res.hash = (int)c;
+            res.base_pow = 100;
+            segL.set(x, res);
+            segR.set(n - x - 1, res);
+        } else {
+            int l, r;
+            cin >> l >> r;
+            --l;
+            ans.push_back(segL.prod(l, r).hash == segR.prod(n - r, n - l).hash);
+        }
+    }
+    for (bool v : ans) output(v ? "Yes" : "No");
 }

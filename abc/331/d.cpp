@@ -80,121 +80,29 @@ int main() {
     REP(i, n) {
         string s;
         cin >> s;
-        REP(j, n) { cs.add(i, j, s[j] == 'B' ? 1 : 0); }
+        REP(j, n) cs.add(i, j, s[j] == 'B' ? 1 : 0);
     }
     cs.build();
+    auto f = [&](int y, int x) -> ll {
+        ll ans = 0;
+        int cntY = y / n;
+        int cntX = x / n;
+        // 左上
+        ans += (ll)cntY * cntX * cs.sum(0, 0, n, n);
+        // 右上
+        ans += cntY * cs.sum(0, 0, n, x % n);
+        // 左下
+        ans += cntX * cs.sum(0, 0, y % n, n);
+        // 右下
+        ans += cs.sum(0, 0, y % n, x % n);
+        return ans;
+    };
     vector<ll> ans(q);
-    auto idx = [n](int a) -> int { return a / n; };
     REP(i, q) {
         int a, b, c, d;
         cin >> a >> b >> c >> d;
-        ll sum = 0;
-        // 左上
-        if (a % n != 0 && b % n != 0) {
-            if (idx(a) == idx(c)) {
-                if (idx(b) == idx(d)) {
-                    sum += cs.sum(a % n, b % n, c % n + 1, d % n + 1);
-                } else {
-                    sum += cs.sum(a % n, b % n, c % n + 1, n);
-                }
-            } else {
-                if (idx(b) == idx(d)) {
-                    sum += cs.sum(a % n, b % n, n, d % n + 1);
-                } else {
-                    sum += cs.sum(a % n, b % n, n, n);
-                }
-            }
-        }
-        // output(sum);
-        // 左下
-        if (c % n + 1 != n && b % n != 0) {
-            if (idx(a) != idx(c)) {
-                if (idx(b) == idx(d)) {
-                    sum += cs.sum(0, b % n, c % n + 1, d % n + 1);
-                } else {
-                    sum += cs.sum(0, b % n, c % n + 1, n);
-                }
-            }
-        }
-        // output(sum);
-        // 右上
-        if (a % n != 0 && d % n + 1 != n) {
-            if (idx(a) != idx(c)) {
-                if (idx(b) == idx(d)) {
-                    sum += cs.sum(a % n, 0, c % n + 1, d % n + 1);
-                } else {
-                    sum += cs.sum(a % n, 0, n, d % n + 1);
-                }
-            }
-        }
-        // output(sum);
-        // 右下
-        if (c % n + 1 != n && d % n + 1 != n) {
-            if (idx(a) != idx(c) && idx(b) != idx(d)) {
-                if (idx(b) != idx(d)) {
-                    sum += cs.sum(0, 0, c % n + 1, d % n + 1);
-                }
-            }
-        }
-        // output(sum);
-        // 上(※ここから繰り返し含む)
-        {
-            if (a % n != 0) {
-                ll tmp = cs.sum(a % n, 0, n, n);
-                int l = ((b + n - 1) / n) * n;
-                int r = ((d + 1) / n) * n;
-                int cnt = (r - l) / n;
-                sum += tmp * cnt;
-            }
-        }
-        // output(sum);
-        // 下
-        {
-            if (c % n + 1 != n) {
-                ll tmp = cs.sum(0, 0, c % n + 1, n);
-                int l = ((b + n - 1) / n) * n;
-                int r = ((d + 1) / n) * n;
-                int cnt = (r - l) / n;
-                sum += tmp * cnt;
-            }
-        }
-        // output(sum);
-        // 左
-        {
-            if (b % n != 0) {
-                ll tmp = cs.sum(0, b % n, n, n);
-                int l = ((a + n - 1) / n) * n;
-                int r = ((c + 1) / n) * n;
-                int cnt = (r - l) / n;
-                sum += tmp * cnt;
-            }
-        }
-        // output(sum);
-        // 右
-        {
-            if (d % n + 1 != n) {
-                ll tmp = cs.sum(0, 0, n, d % n + 1);
-                int l = ((a + n - 1) / n) * n;
-                int r = ((c + 1) / n) * n;
-                int cnt = (r - l) / n;
-                sum += tmp * cnt;
-            }
-        }
-        // output(sum);
-        // 真ん中
-        {
-            ll tmp = cs.sum(0, 0, n, n);
-            int l = ((b + n - 1) / n) * n;
-            int r = ((d + 1) / n) * n;
-            int _l = ((a + n - 1) / n) * n;
-            int _r = ((c + 1) / n) * n;
-            int cnt = (r - l) / n;
-            int _cnt = (_r - _l) / n;
-            if (cnt != -1 && _cnt != -1) {
-                sum += tmp * (ll)cnt * _cnt;
-            }
-        }
-        ans[i] = sum;
+        ++c, ++d;
+        ans[i] = f(c, d) - f(c, b) - f(a, d) + f(a, b);
     }
     REP(i, q) output(ans[i]);
 }
