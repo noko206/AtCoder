@@ -31,5 +31,42 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
 int main() {
-    //
+    int q;
+    cin >> q;
+    vector<int> par, val;
+    par.push_back(-1);
+    val.push_back(-1);
+    map<int, int> note;
+    int now = 0;
+    vector<int> ans(q);
+    REP(i, q) {
+        string t;
+        cin >> t;
+        if (t == "ADD") {
+            int x;
+            cin >> x;
+            int next = par.size();
+            par.push_back(now);
+            val.push_back(x);
+            now = next;
+        } else if (t == "DELETE") {
+            if (now != 0) {
+                now = par[now];
+            }
+        } else if (t == "SAVE") {
+            int y;
+            cin >> y;
+            note[y] = now;
+        } else {
+            int z;
+            cin >> z;
+            if (note.find(z) == note.end()) {
+                now = 0;
+            } else {
+                now = note[z];
+            }
+        }
+        ans[i] = val[now];
+    }
+    output(ans);
 }
