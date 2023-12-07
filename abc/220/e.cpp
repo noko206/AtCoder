@@ -33,48 +33,19 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 using mint = modint998244353;
 
 int main() {
-    int n, m, k;
-    cin >> n >> m >> k;
-    vector<int> a(m);
-    REP(i, m) cin >> a[i], --a[i];
-    vector<vector<pair<int, int>>> to(n);
-    REP(i, n - 1) {
-        int u, v;
-        cin >> u >> v;
-        --u, --v;
-        to[u].emplace_back(i, v);
-        to[v].emplace_back(i, u);
-    }
-    vector<int> cnt(n - 1, 0);
-    stack<int> st;
-    auto dfs = [&](auto &dfs, int v, int g, int p = -1) -> void {
-        if (v == g) {
-            while (!st.empty()) {
-                ++cnt[st.top()];
-                st.pop();
-            }
-            return;
-        }
-        for (auto [i, u] : to[v]) {
-            if (u == p) continue;
-            st.push(i);
-            dfs(dfs, u, g, v);
-            if (!st.empty()) st.pop();
-        }
-    };
-    REP(i, m - 1) dfs(dfs, a[i], a[i + 1]);
-    vector<mint> dp(100005, 0);
-    dp[0] = 1;
-    REP(i, n - 1) {
-        RREP(j, 100000 - cnt[i]) { dp[j + cnt[i]] += dp[j]; }
-    }
-    ll sum = 0;
-    REP(i, n - 1) sum += cnt[i];
+    int n, d;
+    cin >> n >> d;
     mint ans = 0;
-    REP(i, 100001) {
-        if (2 * i - sum == k) {
-            ans += dp[i];
+    REP(i, n) {
+        // 下側
+        if (i + d < n) {
+            ans += pow_mod(2, i + d, 998244353);
+        }
+        if (i - d >= 0) {
+            // 上側 (折り返さない)
+
+        } else {
+            // 上側 (折り返す)
         }
     }
-    output(ans.val());
 }
