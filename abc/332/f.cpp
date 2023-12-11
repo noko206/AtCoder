@@ -32,20 +32,32 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 // clang-format on
 using mint = modint998244353;
 
-using S = mint;
 struct F {
-    mint value;
-    mint bunbo;
-    mint bunshi;
+    mint a, b;
+    F(mint a = 1, mint b = 0) : a(a), b(b) {}
 };
-
-S op(S a, S b) { return 0; }
-S e() { return 0; }
-S mapping(F f, S x) { return v.bunshi * v.bunbo * x + v.bunbo * f.value; }
-F composition(F f, F g) { return f + g; }
-F id() { return 0; }
+mint mapping(F f, mint x) { return f.a * x + f.b; }
+F composition(F g, F f) { return F(f.a * g.a, g.b + g.a * f.b); }
+F id() { return F(); }
+mint op(mint a, mint b) { return 0; }
+mint e() { return 0; }
 
 int main() {
-    std::vector<S> v(N, {0, 1});
-    atcoder::lazy_segtree<S, op, e, F, mapping, composition, id> seg(v);
+    int n, m;
+    cin >> n >> m;
+    vector<mint> a(n);
+    REP(i, n) {
+        int _a;
+        cin >> _a;
+        a[i] = _a;
+    }
+    lazy_segtree<mint, op, e, F, mapping, composition, id> seg(a);
+    REP(i, m) {
+        int l, r, x;
+        cin >> l >> r >> x;
+        --l;
+        mint p = mint(1) / (r - l), q = mint(1) - p;
+        seg.apply(l, r, F(q, p * x));
+    }
+    REP(i, n) output(seg.get(i).val());
 }
