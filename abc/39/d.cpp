@@ -30,19 +30,55 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
-using mint = modint998244353;
+const int di[] = {-1, -1, 0, 1, 1, 1, 0, -1, 0};
+const int dj[] = {0, 1, 1, 1, 0, -1, -1, -1, 0};
 
 int main() {
-    int n, d;
-    cin >> n >> d;
-    mint ans = 0;
-    REP(i, n) {
-        if (i + d < n) {
-            ans += pow_mod(2, d, 998244353);
+    int h, w;
+    cin >> h >> w;
+    vector<string> s(h);
+    REP(i, h) cin >> s[i];
+    vector is_white(h, vector<bool>(w, false));
+    REP(i, h) {
+        REP(j, w) {
+            if (s[i][j] == '.') {
+                REP(k, 9) {
+                    int ni = i + di[k];
+                    int nj = j + dj[k];
+                    if (ni < 0 || nj < 0 || ni >= h || nj >= w) continue;
+                    is_white[ni][nj] = true;
+                }
+            }
         }
-        mint tmp = 1;
-        tmp *= pow_mod(2, d - 1, 998244353) * (n - 2);
-        output(ans.val());
     }
-    // output(ans.val());
+    vector is_black(h, vector<bool>(w, false));
+    REP(i, h) {
+        REP(j, w) {
+            if (!is_white[i][j]) {
+                REP(k, 9) {
+                    int ni = i + di[k];
+                    int nj = j + dj[k];
+                    if (ni < 0 || nj < 0 || ni >= h || nj >= w) continue;
+                    is_black[ni][nj] = true;
+                }
+            }
+        }
+    }
+    bool is_ok = true;
+    REP(i, h) {
+        REP(j, w) {
+            if (s[i][j] == '#' && is_black[i][j]) continue;
+            if (s[i][j] == '.' && !is_black[i][j]) continue;
+            is_ok = false;
+        }
+    }
+    if (is_ok) {
+        output("possible");
+        REP(i, h) {
+            REP(j, w) { cout << (is_white[i][j] ? '.' : '#'); }
+            cout << endl;
+        }
+    } else {
+        output("impossible");
+    }
 }
