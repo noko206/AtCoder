@@ -30,38 +30,32 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+template <class T> long long inversion_number(const vector<T> &a) {
+    auto b = a;
+    sort(b.begin(), b.end());
+    b.erase(unique(b.begin(), b.end()), b.end());
+    fenwick_tree<long long> ft((int)b.size());
+    long long ans = 0;
+    int n = (int)a.size();
+    for (int i = 0; i < n; ++i) {
+        int rank = lower_bound(b.begin(), b.end(), a[i]) - b.begin();
+        ans += i - ft.sum(0, rank + 1);
+        ft.add(rank, 1);
+    }
+    return ans;
+}
+
 int main() {
-    int n, m;
-    cin >> n >> m;
-    vector<vector<int>> to(n);
-    scc_graph g(n);
-    REP(i, m) {
-        int u, v;
-        cin >> u >> v;
-        --u, --v;
-        to[u].push_back(v);
-        g.add_edge(u, v);
-    }
-    vector<int> is_ok(n, -1);
-    for (auto v : g.scc()) {
-        if (v.size() == 1) continue;
-        for (int u : v) {
-            is_ok[u] = 1;
-        }
-    }
-    auto dfs = [&](auto &dfs, int v) -> bool {
-        if (is_ok[v] == 1) return true;
-        if (is_ok[v] == 0) return false;
-        bool ok = false;
-        for (int u : to[v]) {
-            ok = ok || dfs(dfs, u);
-        }
-        return is_ok[v] = ok ? 1 : 0;
-    };
-    REP(v, n) dfs(dfs, v);
-    int ans = 0;
-    REP(i, n) {
-        if (is_ok[i] == 1) ++ans;
+    int n;
+    cin >> n;
+    vector<int> c(n), x(n);
+    REP(i, n) cin >> c[i], --c[i];
+    REP(i, n) cin >> x[i], --x[i];
+    vector<vector<int>> cnt(n);
+    REP(i, n) cnt[c[i]].push_back(x[i]);
+    ll ans = inversion_number(x);
+    for (auto v : cnt) {
+        ans -= inversion_number(v);
     }
     output(ans);
 }

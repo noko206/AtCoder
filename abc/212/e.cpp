@@ -30,38 +30,30 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+using mint = modint998244353;
+
 int main() {
-    int n, m;
-    cin >> n >> m;
+    int n, m, k;
+    cin >> n >> m >> k;
     vector<vector<int>> to(n);
-    scc_graph g(n);
     REP(i, m) {
         int u, v;
         cin >> u >> v;
         --u, --v;
         to[u].push_back(v);
-        g.add_edge(u, v);
+        to[v].push_back(u);
     }
-    vector<int> is_ok(n, -1);
-    for (auto v : g.scc()) {
-        if (v.size() == 1) continue;
-        for (int u : v) {
-            is_ok[u] = 1;
+    vector dp(k + 1, vector<mint>(n, 0));
+    dp[0][0] = 1;
+    REP(i, k) {
+        mint sum = 0;
+        REP(v, n) sum += dp[i][v];
+        REP(v, n) {
+            dp[i + 1][v] = sum - dp[i][v];
+            for (int u : to[v]) {
+                dp[i + 1][v] -= dp[i][u];
+            }
         }
     }
-    auto dfs = [&](auto &dfs, int v) -> bool {
-        if (is_ok[v] == 1) return true;
-        if (is_ok[v] == 0) return false;
-        bool ok = false;
-        for (int u : to[v]) {
-            ok = ok || dfs(dfs, u);
-        }
-        return is_ok[v] = ok ? 1 : 0;
-    };
-    REP(v, n) dfs(dfs, v);
-    int ans = 0;
-    REP(i, n) {
-        if (is_ok[i] == 1) ++ans;
-    }
-    output(ans);
+    output(dp[k][0].val());
 }

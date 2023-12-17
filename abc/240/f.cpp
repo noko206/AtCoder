@@ -31,37 +31,5 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
 int main() {
-    int n, m;
-    cin >> n >> m;
-    vector<vector<int>> to(n);
-    scc_graph g(n);
-    REP(i, m) {
-        int u, v;
-        cin >> u >> v;
-        --u, --v;
-        to[u].push_back(v);
-        g.add_edge(u, v);
-    }
-    vector<int> is_ok(n, -1);
-    for (auto v : g.scc()) {
-        if (v.size() == 1) continue;
-        for (int u : v) {
-            is_ok[u] = 1;
-        }
-    }
-    auto dfs = [&](auto &dfs, int v) -> bool {
-        if (is_ok[v] == 1) return true;
-        if (is_ok[v] == 0) return false;
-        bool ok = false;
-        for (int u : to[v]) {
-            ok = ok || dfs(dfs, u);
-        }
-        return is_ok[v] = ok ? 1 : 0;
-    };
-    REP(v, n) dfs(dfs, v);
-    int ans = 0;
-    REP(i, n) {
-        if (is_ok[i] == 1) ++ans;
-    }
-    output(ans);
+    //
 }
