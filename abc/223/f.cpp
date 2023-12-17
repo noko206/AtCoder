@@ -30,48 +30,15 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
-struct S {
-    int cntL;
-    int cntR;
-    int cntMax;
-    int val;
-    S(int val) : val(val) {
-        if (val == 0) {
-            cntL = 0;
-            cntR = 0;
-            cntMax = 0;
-        } else {
-            cntL = 1;
-            cntR = 1;
-            cntMax = 1;
-        }
-    }
-};
+using S = long long;
+using F = long long;
 
-S op(S a, S b) {
-    int cntL = a.cntL;
-    if (a.cntL == a.cntMax) {
-        cntL += b.cntL;
-    }
-    int cntR = b.cntR;
-    if (b.cntR == b.cntMax) {
-        cntR += a.cntR;
-    }
-    int cntMax = max({a.cntMax, b.cntMax, a.cntR + b.cntL});
-    int val = -1;
-    return {cntL, cntR, cntMax, val};
-}
+const S INF = 8e18;
 
-S e() { return S(0); }
-
-using F = int;
-
-S mapping(F f, S x) {
-    if (f == x.val) continue;
-    if (f ==) }
-
-F composition(F f, F g) {}
-
+S op(S a, S b) { return std::min(a, b); }
+S e() { return INF; }
+S mapping(F f, S x) { return f + x; }
+F composition(F f, F g) { return f + g; }
 F id() { return 0; }
 
 int main() {
@@ -79,14 +46,26 @@ int main() {
     cin >> n >> q;
     string s;
     cin >> s;
-    segtree<S, op, e> seg(n);
-    vector<int> ans;
+    lazy_segtree<S, op, e, F, mapping, composition, id> seg(n);
+    REP(i, n) seg.set(i, 0);
+    REP(i, n) seg.apply(i, n, s[i] == '(' ? 1 : -1);
+    vector<bool> ans;
     REP(i, q) {
-        int c, l, r;
-        cin >> c >> l >> r;
-        --l;
-        if (c == 1) {
+        int t, l, r;
+        cin >> t >> l >> r;
+        --l, --r;
+        if (t == 1) {
+            if (s[l] == s[r]) continue;
+            seg.apply(l, n, s[l] == '(' ? -1 : 1);
+            seg.apply(r, n, s[r] == '(' ? -1 : 1);
+            swap(s[l], s[r]);
+            seg.apply(l, n, s[l] == '(' ? 1 : -1);
+            seg.apply(r, n, s[r] == '(' ? 1 : -1);
         } else {
+            int base = l - 1 >= 0 ? seg.get(l - 1) : 0;
+            int val_r = seg.get(r);
+            ans.push_back(seg.prod(l, r + 1) - base == 0 && base == val_r);
         }
     }
+    for (auto v : ans) YesNo(v);
 }

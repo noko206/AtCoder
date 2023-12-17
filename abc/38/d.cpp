@@ -30,63 +30,28 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
-struct S {
-    int cntL;
-    int cntR;
-    int cntMax;
-    int val;
-    S(int val) : val(val) {
-        if (val == 0) {
-            cntL = 0;
-            cntR = 0;
-            cntMax = 0;
-        } else {
-            cntL = 1;
-            cntR = 1;
-            cntMax = 1;
-        }
-    }
-};
+int op(int a, int b) { return max(a, b); }
 
-S op(S a, S b) {
-    int cntL = a.cntL;
-    if (a.cntL == a.cntMax) {
-        cntL += b.cntL;
-    }
-    int cntR = b.cntR;
-    if (b.cntR == b.cntMax) {
-        cntR += a.cntR;
-    }
-    int cntMax = max({a.cntMax, b.cntMax, a.cntR + b.cntL});
-    int val = -1;
-    return {cntL, cntR, cntMax, val};
-}
-
-S e() { return S(0); }
-
-using F = int;
-
-S mapping(F f, S x) {
-    if (f == x.val) continue;
-    if (f ==) }
-
-F composition(F f, F g) {}
-
-F id() { return 0; }
+int e() { return 0; }
 
 int main() {
-    int n, q;
-    cin >> n >> q;
-    string s;
-    cin >> s;
-    segtree<S, op, e> seg(n);
-    vector<int> ans;
-    REP(i, q) {
-        int c, l, r;
-        cin >> c >> l >> r;
-        --l;
-        if (c == 1) {
-        } else {
+    int n;
+    cin >> n;
+    vector<pair<int, int>> wh(n);
+    REP(i, n) {
+        int w, h;
+        cin >> w >> h;
+        wh[i] = {w, -h};
+    }
+    sort(ALL(wh));
+    segtree<int, op, e> seg(100005);
+    for (auto [w, h] : wh) {
+        h *= -1;
+        int v = seg.get(h);
+        int u = seg.prod(0, h);
+        if (u + 1 > v) {
+            seg.set(h, u + 1);
         }
     }
+    output(seg.all_prod());
 }
