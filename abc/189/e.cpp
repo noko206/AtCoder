@@ -30,6 +30,81 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+using mat = vector<vector<ll>>;
+
+mat mul(mat l, mat r) {
+    mat ans(l.size());
+    REP(li, l.size()) {
+        REP(rj, r[0].size()) {
+            ll sum = 0;
+            REP(k, l[li].size()) { sum += l[li][k] * r[k][rj]; }
+            ans[li].push_back(sum);
+        }
+    }
+    return ans;
+}
+
 int main() {
-    //
+    int n;
+    cin >> n;
+    vector<int> x(n), y(n);
+    REP(i, n) cin >> x[i] >> y[i];
+    int m;
+    cin >> m;
+    vector tot(m + 1, vector(3, vector<ll>(3)));
+    tot[0][0] = {1, 0, 0};
+    tot[0][1] = {0, 1, 0};
+    tot[0][2] = {0, 0, 1};
+    vector one(3, vector<ll>(3));
+    one[0] = {0, 1, 0};
+    one[1] = {-1, 0, 0};
+    one[2] = {0, 0, 1};
+    vector two(3, vector<ll>(3));
+    two[0] = {0, -1, 0};
+    two[1] = {1, 0, 0};
+    two[2] = {0, 0, 1};
+    vector three(3, vector<ll>(3));
+    three[0] = {-1, 0, 2};
+    three[1] = {0, 1, 0};
+    three[2] = {0, 0, 1};
+    vector four(3, vector<ll>(3));
+    four[0] = {1, 0, 0};
+    four[1] = {0, -1, 2};
+    four[2] = {0, 0, 1};
+    REP(i, m) {
+        int t;
+        cin >> t;
+        if (t == 1) {
+            tot[i + 1] = mul(one, tot[i]);
+        } else if (t == 2) {
+            tot[i + 1] = mul(two, tot[i]);
+        } else if (t == 3) {
+            int p;
+            cin >> p;
+            auto tmp = three;
+            tmp[0][2] = 2 * p;
+            tot[i + 1] = mul(tmp, tot[i]);
+        } else {
+            int p;
+            cin >> p;
+            auto tmp = four;
+            tmp[1][2] = 2 * p;
+            tot[i + 1] = mul(tmp, tot[i]);
+        }
+    }
+    int q;
+    cin >> q;
+    vector<pair<ll, ll>> ans(q);
+    REP(i, q) {
+        int a, b;
+        cin >> a >> b;
+        --b;
+        mat c(3);
+        c[0].push_back(x[b]);
+        c[1].push_back(y[b]);
+        c[2].push_back(1);
+        auto tmp = mul(tot[a], c);
+        ans[i] = {tmp[0][0], tmp[1][0]};
+    }
+    for (auto [a, b] : ans) output(a, b);
 }
