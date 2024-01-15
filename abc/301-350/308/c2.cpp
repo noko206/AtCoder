@@ -33,10 +33,16 @@ int main() {
     cin >> n;
     vector<int> a(n), b(n);
     REP(i, n) cin >> a[i] >> b[i];
-    vector<pair<long double, int>> p(n);
-    REP(i, n) p[i] = {-a[i] / (long double)(a[i] + b[i]), i};
-    sort(ALL(p));
-    vector<int> ans;
-    for (auto [_, i] : p) ans.push_back(i + 1);
+    vector<int> ans(n);
+    REP(i, n) ans[i] = i;
+    sort(ALL(ans), [&](auto const &l, auto const &r) -> bool {
+        ll al = a[l], bl = b[l];
+        ll ar = a[r], br = b[r];
+        if (al * (ar + br) == ar * (al + bl)) {
+            return l < r;
+        }
+        return al * (ar + br) > ar * (al + bl);
+    });
+    REP(i, n) { ++ans[i]; }
     output(ans);
 }
