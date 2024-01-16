@@ -30,20 +30,47 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+template <class T> vector<vector<T>> matrix_mul(const vector<vector<T>> &a,
+                                                const vector<vector<T>> &b) {
+    vector<vector<T>> res(a.size(), vector<T>(b[0].size()));
+    for (int i = 0; i < a.size(); i++) {
+        for (int j = 0; j < b[0].size(); j++) {
+            for (int k = 0; k < b.size(); k++) {
+                res[i][j] += a[i][k] * b[k][j];
+            }
+        }
+    }
+    return res;
+}
+
+template <class T>
+vector<vector<T>> matrix_pow(vector<vector<T>> a, long long n) {
+    vector<vector<T>> res(a.size(), vector<T>(a.size()));
+    for (int i = 0; i < a.size(); i++) res[i][i] = 1;
+    while (n > 0) {
+        if (n & 1) res = matrix_mul(a, res);
+        a = matrix_mul(a, a);
+        n >>= 1;
+    }
+    return res;
+}
+
+using mint = modint1000000007;
+
 int main() {
-    int a, b, c, d;
-    cin >> a >> b >> c >> d;
-    if (a == c && b == d) {
-        output(0);
-        return 0;
+    int n;
+    ll k;
+    cin >> n >> k;
+    vector a(n, vector<mint>(n));
+    REP(i, n) {
+        REP(j, n) {
+            int tmp;
+            cin >> tmp;
+            a[i][j] = tmp;
+        }
     }
-    if (a + b == c + d || a - b == c - d || abs(a - c) + abs(b - d) <= 3) {
-        output(1);
-        return 0;
-    }
-    if ((a + b) % 2 == (c + d) % 2) {
-        output(2);
-        return 0;
-    }
-    output(3);
+    auto p = matrix_pow(a, k);
+    mint ans = 0;
+    REP(i, n) REP(j, n) ans += p[i][j];
+    output(ans.val());
 }

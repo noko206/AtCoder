@@ -30,20 +30,31 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+using mint = modint1000000007;
+
+mint dp[10005][105][2];
+
 int main() {
-    int a, b, c, d;
-    cin >> a >> b >> c >> d;
-    if (a == c && b == d) {
-        output(0);
-        return 0;
+    string k;
+    int d;
+    cin >> k >> d;
+    dp[0][0][1] = 1;
+    REP(i, k.length()) {
+        REP(j, d) {
+            // smallerの場合
+            REP(keta, 10) {
+                dp[i + 1][(j + keta) % d][0] += dp[i][j][0];
+                if (keta < k[i] - '0') {
+                    dp[i + 1][(j + keta) % d][0] += dp[i][j][1];
+                }
+            }
+            // そうでない場合(=の場合)
+            int keta = k[i] - '0';
+            dp[i + 1][(j + keta) % d][1] += dp[i][j][1];
+        }
     }
-    if (a + b == c + d || a - b == c - d || abs(a - c) + abs(b - d) <= 3) {
-        output(1);
-        return 0;
-    }
-    if ((a + b) % 2 == (c + d) % 2) {
-        output(2);
-        return 0;
-    }
-    output(3);
+    mint ans = 0;
+    REP(smaller, 2) ans += dp[k.length()][0][smaller];
+    --ans;
+    output(ans.val());
 }
