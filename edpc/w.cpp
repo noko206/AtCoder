@@ -30,7 +30,35 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+using S = long long;
+using F = long long;
+
+const S INF = 8e18;
+
+S op(S a, S b) { return std::max(a, b); }
+S e() { return -INF; }
+S mapping(F f, S x) { return f + x; }
+F composition(F f, F g) { return f + g; }
+F id() { return 0; }
+
 int main() {
     int n, m;
     cin >> n >> m;
+    map<int, vector<pair<int, int>>> mp;
+    REP(i, m) {
+        int l, r, a;
+        cin >> l >> r >> a;
+        --l, --r;
+        mp[r].emplace_back(l, a);
+    }
+    lazy_segtree<S, op, e, F, mapping, composition, id> seg(n);
+    REP(i, n) seg.set(i, 0);
+    REP(i, n) {
+        seg.set(i, max(seg.get(i), seg.prod(0, i)));
+        if (mp.find(i) == mp.end()) continue;
+        for (auto [l, a] : mp[i]) {
+            seg.apply(l, i + 1, a);
+        }
+    }
+    output(max(seg.all_prod(), 0LL));
 }
