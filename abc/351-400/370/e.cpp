@@ -30,7 +30,29 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+using mint = modint998244353;
 
 int main() {
-    // ...
+    int n;
+    ll k;
+    cin >> n >> k;
+    vector<ll> a(n);
+    REP(i, n) cin >> a[i];
+    vector<mint> dp(n + 1);
+    dp[0] = 1;
+    map<ll, mint> mp;
+    mp[0] = 1;
+    mint sum = 1;
+    ll d = 0;
+    REP(i, n) {
+        if (mp.find(k - d - a[i]) != mp.end()) {
+            dp[i + 1] = sum - mp[k - d - a[i]];
+        } else {
+            dp[i + 1] = sum;
+        }
+        sum += dp[i + 1];
+        d += a[i];
+        mp[-d] += dp[i + 1];
+    }
+    output(dp[n].val());
 }
