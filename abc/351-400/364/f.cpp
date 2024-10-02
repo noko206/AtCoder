@@ -33,12 +33,24 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 int main() {
     int n, q;
     cin >> n >> q;
-    vector<tuple<int, int, int>> clr(q);
+    vector<tuple<int, int, int, int>> query;
     REP(i, q) {
         int l, r, c;
         cin >> l >> r >> c;
         --l, --r;
-        clr[i] = {c, l, r};
+        query.emplace_back(c, l, r, i);
     }
-    sort(ALL(clr));
+    sort(ALL(query));
+    set<int> st;
+    REP(i, n - 1) st.insert(i);
+    ll ans = 0;
+    for (auto [c, l, r, i] : query) {
+        ans += c;
+        auto it = st.lower_bound(l);
+        while (it != st.end() && *it < r) {
+            it = st.erase(it);
+            ans += c;
+        }
+    }
+    output(st.size() == 0 ? ans : -1);
 }
