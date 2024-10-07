@@ -30,6 +30,57 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+using P = pair<int, pair<int, int>>;
+
+const int dy[] = {0, 1, 0, -1};
+const int dx[] = {1, 0, -1, 0};
+
 int main() {
-    //
+    int h, w, y;
+    cin >> h >> w >> y;
+    vector a(h, vector<int>(w));
+    REP(i, h) REP(j, w) cin >> a[i][j];
+    priority_queue<P, vector<P>, greater<P>> pq;
+    REP(i, h) REP(j, w) pq.push({a[i][j], {i, j}});
+    vector sunk(h, vector<bool>(w, false));
+    vector<int> ans(y);
+    int sum = h * w;
+    auto dfs = [&](auto &dfs, int y, int x, int border) -> void {
+        if (sunk[y][x]) return;
+        sunk[y][x] = true;
+        --sum;
+        REP(i, 4) {
+            int ny = y + dy[i];
+            int nx = x + dx[i];
+            if (ny < 0 || ny >= h || nx < 0 || nx >= w) continue;
+            if (a[ny][nx] <= border) {
+                dfs(dfs, ny, nx, border);
+            }
+        }
+    };
+    REP(border, 1, y + 1) {
+        while (!pq.empty() && pq.top().first <= border) {
+            auto [height, pos] = pq.top();
+            auto [y, x] = pos;
+            bool is_ok = false;
+            REP(i, 4) {
+                int ny = y + dy[i];
+                int nx = x + dx[i];
+                if (ny < 0 || ny >= h || nx < 0 || nx >= w) {
+                    is_ok = true;
+                    break;
+                }
+                if (sunk[ny][nx]) {
+                    is_ok = true;
+                    break;
+                }
+            }
+            if (is_ok) {
+                dfs(dfs, y, x, border);
+            }
+            pq.pop();
+        }
+        ans[border - 1] = sum;
+    }
+    REP(i, y) output(ans[i]);
 }
