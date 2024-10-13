@@ -30,6 +30,67 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+template <class T> vector<T> enum_divisors(T n) {
+    vector<T> ans;
+    for (T i = 1; i * i <= n; ++i) {
+        if (n % i == 0) {
+            ans.push_back(i);
+            if (n / i != i) {
+                ans.push_back(n / i);
+            }
+        }
+    }
+    sort(ans.begin(), ans.end());
+    return ans;
+}
+
 int main() {
-    //
+    ll n;
+    cin >> n;
+    auto d = enum_divisors(n);
+    set<ll> st;
+    for (ll x : d) st.insert(x);
+    map<ll, ll> mp;
+    for (ll x : d) {
+        string s = to_string(x);
+        bool is_ok = true;
+        REP(i, s.length()) {
+            if (s[i] == '0') {
+                is_ok = false;
+                break;
+            }
+        }
+        if (!is_ok) continue;
+        string t = s;
+        reverse(ALL(t));
+        ll y = stoll(t);
+        if (st.find(y) != st.end()) {
+            mp[x] = y;
+        }
+    }
+    map<ll, string> dp;
+    auto dfs = [&](auto &dfs, ll n) -> string {
+        assert(n > 0);
+        if (dp.find(n) != dp.end()) {
+            return dp[n];
+        }
+        if (mp.find(n) != mp.end() && n == mp[n]) {
+            return dp[n] = to_string(n);
+        }
+        for (ll x : d) {
+            if (x == 1) continue;
+            if (mp.find(x) == mp.end()) continue;
+            if (n % (x * mp[x]) != 0) continue;
+            string s = dfs(dfs, n / (x * mp[x]));
+            if (s == "") continue;
+            return dp[n] = to_string(x) + "*" + s + "*" + to_string(mp[x]);
+        }
+        return dp[n] = "";
+    };
+    string ans = dfs(dfs, n);
+    if (ans == "") {
+        output(-1);
+    } else {
+        output(ans);
+    }
 }
