@@ -33,16 +33,21 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 using mint = modint998244353;
 
 int main() {
-    ll n, k;
+    int n, k;
     cin >> n >> k;
-    vector<mint> dp(k + 1);
-    dp[0] = 1;
-    mint p = n * n - 2 * n + 2;
-    p /= n * n;
-    mint q = 2;
-    q /= n * n;
-    REP(i, k) { dp[i + 1] = dp[i] * p + (1 - dp[i]) * q; }
-    mint sum = n * (n + 1) / 2;
-    mint ans = dp[k] + (1 - dp[k]) * (sum - 1);
+    if (n == 1) {
+        output(1);
+        return 0;
+    }
+    vector dp(k + 1, vector<mint>(2, 0));
+    dp[0][0] = 1;
+    mint p = inv_mod(n, mint::mod()) * inv_mod(n, mint::mod());
+    mint x = p * 2 * (n - 1);
+    REP(i, k) {
+        dp[i + 1][0] = dp[i][0] * (1 - x) + dp[i][1] * x;
+        dp[i + 1][1] = dp[i][0] * p * 2 + dp[i][1] * (1 - p * 2);
+    }
+    mint ans = dp[k][0];
+    ans += dp[k][1] * ((ll)n * (n + 1) / 2 - 1);
     output(ans.val());
 }
