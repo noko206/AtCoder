@@ -56,7 +56,7 @@ function main() {
 				chmax($dp[$i + 1][$j + 1], $dp[$i][$j] + $v * ($k - $j));
 			}
 			else {
-				chmax($dp[$i + 1][$j], $dp[$i][$j] + $v * ($n - $j - ));
+				// chmax($dp[$i + 1][$j], $dp[$i][$j] + $v * ($n - $j - ));
 			}
 		}
 	}

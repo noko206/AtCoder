@@ -44,7 +44,7 @@ function main()
 	list($a, $b) = ints();
 	$g = gcd($a, $b);
 	$d = prime_divisors($g);
-	output(count($d) + 1)
+	output(count($d) + 1);
 }
 
 main();
