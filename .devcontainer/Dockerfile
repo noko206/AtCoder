@@ -1,27 +1,18 @@
-# See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.224.2/containers/cpp/.devcontainer/base.Dockerfile
+FROM debian:bookworm
 
-# [Choice] Debian / Ubuntu version (use Debian 11, Ubuntu 18.04/21.04 on local arm64/Apple Silicon): debian-11, debian-10, ubuntu-21.04, ubuntu-20.04, ubuntu-18.04
-ARG VARIANT="bullseye"
-FROM mcr.microsoft.com/vscode/devcontainers/cpp:0-${VARIANT}
+RUN apt-get update && apt-get install -y \
+    git \
+    gcc-12 \
+    g++-12 \
+    php8.2-cli \
+    php8.2-mbstring
 
-# [Optional] Install CMake version different from what base image has already installed. 
-# CMake reinstall choices: none, 3.21.5, 3.22.2, or versions from https://cmake.org/download/
-ARG REINSTALL_CMAKE_VERSION_FROM_SOURCE="none"
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 && \
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 12 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Optionally install the cmake for vcpkg
-COPY ./reinstall-cmake.sh /tmp/
-RUN if [ "${REINSTALL_CMAKE_VERSION_FROM_SOURCE}" != "none" ]; then \
-    /tmp/reinstall-cmake.sh ${REINSTALL_CMAKE_VERSION_FROM_SOURCE}; \
-    fi \
-    && rm -f /tmp/reinstall-cmake.sh
+RUN echo "alias ll='ls -la'" >> ~/.bashrc && \
+    echo "alias g='g++ -o a -I .'" >> ~/.bashrc
 
-COPY .config/online-judge-tools /home/vscode/online-judge-tools
-
-# [Optional] Uncomment this section to install additional vcpkg ports.
-# RUN su vscode -c "${VCPKG_ROOT}/vcpkg install <your-port-name-here>"
-
-# [Optional] Uncomment this section to install additional packages.
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends lv vim clang-format
-
-RUN echo "alias g='g++ -std=c++17 -o a -I .'" >> /etc/bash.bashrc
+CMD ["bash"]
