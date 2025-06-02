@@ -32,31 +32,86 @@ void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 // clang-format on
 int main() {
     int n, m;
-	cin >> n >> m;
-	vector<int> a(m), b(m);
-	REP(i, m) cin >> a[i] >> b[i], --a[i], --b[i];
-	map<pair<int, int>, bool> mp;
-	REP(i, m) mp[{a[i], b[i]}] = true;
-	int siz = n / 2;
-	REP(bit, 1 << siz) {
-		bool is_ok = true;
-		REP(i, siz){
-			// j < i
-			REP(j, i){
-				if (mp.find({j, i}) != mp.end()){
-					is_ok = false;
-				}
-			}
-		}
-		if (!is_ok) continue;
-		ll bit2 = 0;
-		REP(i, siz, n) bit2 |= 1 << i;
-		REP(i, m){
-			if (bit & (1 << a[i])) {
-				if (b[i] >= siz) {
-					bit2 &= ~(1 << i);
-				}
-			}
-		}
-	}
+    cin >> n >> m;
+    map<pair<int, int>, bool> mp;
+    REP(i, m) {
+        int a, b;
+        cin >> a >> b;
+        --a, --b;
+        mp[{a, b}] = true;
+        mp[{b, a}] = true;
+    }
+    // A
+    int h = n / 2;
+    vector<int> filterA(h, 0);
+    REP(i, h) {
+        REP(j, h) {
+            if (mp.find({i, j}) != mp.end()) {
+                filterA[i] |= 1 << j;
+            }
+        }
+    }
+    // B
+    vector<int> filterB(n - h, 0);
+    REP(i, n - h) {
+        REP(j, n - h) {
+            if (mp.find({i + h, j + h}) != mp.end()) {
+                filterB[i] |= 1 << j;
+            }
+        }
+    }
+    // メイン
+    vector<int> dp(1 << h, 0);
+    REP(bit, 1 << h) {
+        int mask = 0;
+        REP(i, h) {
+            if (bit & (1 << i)) {
+                mask |= filterA[i];  // ビットが立っているやつがダメ
+            }
+        }
+        if (bit & mask) continue;  // ビットが立っていたらダメ
+        dp[bit] = __builtin_popcount(bit);
+    }
+    REP(bit, 1 << h) {
+        REP(i, h) {
+            if (bit & (1 << i)) continue;
+            chmax(dp[bit | 1 << i], dp[bit]);
+        }
+    }
+    // 前計算
+    vector<int> filterC(n - h, 0);
+    REP(i, n - h) {
+        REP(j, h) {
+            if (mp.find({i + h, j}) != mp.end()) {
+                filterC[i] |= 1 << j;
+            }
+        }
+    }
+    // もう一方
+    int ans = 0;
+    REP(bit, 1 << (n - h)) {
+        int mask = 0;
+        REP(i, n - h) {
+            if (bit & (1 << i)) {
+                mask |= filterB[i];
+            }
+        }
+        if (bit & mask) continue;
+        // bitからAグループの最大を考える
+        int mask2 = 0;
+        REP(i, n - h) {
+            if (bit & (1 << i)) {
+                mask2 |= filterC[i];
+            }
+        }
+        REP(i, h) {
+            if (mask2 & (1 << i)) {
+                mask2 &= ~(1 << i);
+            } else {
+                mask2 |= 1 << i;
+            }
+        }
+        chmax(ans, dp[mask2] + __builtin_popcount(bit));
+    }
+    output(ans);
 }
