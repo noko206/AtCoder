@@ -14,7 +14,6 @@ RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 && \
 
 RUN echo "alias ll='ls -la'" >> ~/.bashrc && \
     echo "alias g='g++ -o a -I .'" >> ~/.bashrc && \
-    echo 'export HISTCONTROL=ignoreboth' >> ~/.bashrc && \
-    source ~/.bashrc
+    echo 'export HISTCONTROL=ignoreboth' >> ~/.bashrc
 
 CMD ["bash"]
