@@ -86,13 +86,22 @@ int main() {
         // other
         dfs(dfs, pos + 1, sumAX, sumAY, sumBX, sumBY);
     };
-    dfsB(dfsB, h / 2);
+    dfsB(dfsB, h);
     // Xが価値、Yが貴重度
     vector<ll> bx;
     sort(ALL(bxy));
-    for (auto [_x, _y] : bxy) bx.push_back(_x);
-    segtree<ll, op, e> seg(bx.size());
-    for (auto [_x, _y] : axy) {
-        // ...
+    segtree<ll, op, e> seg(bxy.size());
+    int cnt = 0;
+    for (auto [_x, _y] : bxy) {
+        bx.push_back(_x);
+        seg.set(cnt, _y);
+        ++cnt;
     }
+    ll ans = 0;
+    for (auto [_x, _y] : axy) {
+        int l = lower_bound(ALL(bx), -d - _x) - bx.begin();
+        int r = upper_bound(ALL(bx), d - _x) - bx.begin();
+        chmax(ans, _y + seg.prod(l, r));
+    }
+    output(ans);
 }
