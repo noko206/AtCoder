@@ -30,85 +30,39 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
-int n;
-int a[50];
-
-struct S {
-    ll value;
-    int max;
-    int next;
-    vector<int> cnt;
-    int id;
-};
-
-S op(S x, S y) {
-    if (y.next == n) {
-        return x;
-    }
-    if (x.next == n) {
-        return y;
-    }
-    if (x.value - a[x.max] + a[x.next] >= y.value - a[y.max] + a[y.next]) {
-        return x;
-    } else {
-        return y;
-    }
-}
-
-S e() {
-    S x;
-    x.value = 0;
-    x.max = -1;
-    x.next = n;
-    vector<int> cnt(n, 0);
-    x.cnt = cnt;
-    x.id = -1;
-    return x;
-}
-
 int main() {
-    int k, x;
+    int n, k, x;
     cin >> n >> k >> x;
+    vector<int> a(n);
     REP(i, n) cin >> a[i];
-    sort(a, a + n);
-    ll sum = (ll)a[n - 1] * k;
-    segtree<S, op, e> seg(100000);
-    {
-        S s;
-        s.value = sum;
-        s.max = n - 1;
-        s.next = 1;
-        vector<int> cnt(n, 0);
-        cnt[0] = k;
-        s.cnt = cnt;
-        s.id = 0;
-        seg.set(0, s);
-    }
-    REP(i, x - 1) {
-        auto s = seg.prod(0, i + 1);
-        auto t = s;
-        // s
-        {
-            ++s.next;
-        }
-        // t
-        {
-            t.value += a[s.next] - a[s.max];
-            --t.cnt[s.max];
-            ++t.cnt[s.next];
-            while (true) {
-                if (t.cnt[t.max] != 0) {
-                    break;
-                }
-                --t.max;
-                t.next = t.max + 1;
-            }
-            t.id = i + 1;
-        }
-        seg.set(s.id, s);
-        seg.set(t.id, t);
-    }
+    sort(ALL(a));
+    priority_queue<pair<ll, vector<int>>> pq;
+    vector<int> init(n, 0);
+    init[n - 1] = k;
+    pq.push({(ll)a[n - 1] * k, init});
     vector<ll> ans(x);
-    REP(i, x) { ans[i] = seg.get(i).value; }
+    REP(i, x) {
+        assert(!pq.empty());
+        auto [val, vec] = pq.top();
+        pq.pop();
+        ans[i] = val;
+        REP(j, n) {
+            if (vec[j] > 0) {
+                if (j > 0) {
+                    --vec[j];
+                    ++vec[j - 1];
+                    pq.push({val - a[j] + a[j - 1], vec});
+                    ++vec[j];
+                    --vec[j - 1];
+                }
+                if (j + 1 < n && vec[j + 1] > 0) {
+                    --vec[j + 1];
+                    ++vec[j];
+                    pq.push({val - a[j + 1] + a[j], vec});
+                }
+                break;
+            }
+        }
+    }
     REP(i, x) output(ans[i]);
 }
