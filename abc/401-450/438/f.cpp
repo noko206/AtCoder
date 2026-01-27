@@ -30,6 +30,127 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+// 最長共通祖先 (Lowest Common Ancestor)
+struct LCA {
+   public:
+    LCA(const vector<vector<int>>& G, int root = 0) { init(G, root); }
+
+    int query(int u, int v) {
+        if (dist[u] < dist[v]) swap(u, v);
+        int K = parent.size();
+        for (int k = 0; k < K; k++) {
+            if ((dist[u] - dist[v]) >> k & 1) {
+                u = parent[k][u];
+            }
+        }
+        if (u == v) return u;
+        for (int k = K - 1; k >= 0; k--) {
+            if (parent[k][u] != parent[k][v]) {
+                u = parent[k][u];
+                v = parent[k][v];
+            }
+        }
+        return parent[0][u];
+    }
+
+   private:
+    vector<vector<int>> parent;
+    vector<int> dist;
+
+    void init(const vector<vector<int>>& G, int root = 0) {
+        int V = G.size();
+        int K = 1;
+        while ((1 << K) < V) K++;
+        parent.assign(K, vector<int>(V, -1));
+        dist.assign(V, -1);
+        dfs(G, root, -1, 0);
+        for (int k = 0; k + 1 < K; k++) {
+            for (int v = 0; v < V; v++) {
+                if (parent[k][v] < 0) {
+                    parent[k + 1][v] = -1;
+                } else {
+                    parent[k + 1][v] = parent[k][parent[k][v]];
+                }
+            }
+        }
+    }
+
+    void dfs(const vector<vector<int>>& G, int v, int p, int d) {
+        parent[0][v] = p;
+        dist[v] = d;
+        for (auto e : G[v]) {
+            if (e != p) dfs(G, e, v, d + 1);
+        }
+    }
+};
+
 int main() {
-    //
+    int n;
+    cin >> n;
+    vector<vector<int>> to(n);
+    REP(i, n - 1) {
+        int u, v;
+        cin >> u >> v;
+        to[u].push_back(v);
+        to[v].push_back(u);
+    }
+    LCA lca(to);
+    vector<int> w(n, 1);
+    auto dfs = [&](auto& dfs, int v = 0, int p = -1) -> int {
+        for (int u : to[v]) {
+            if (u == p) continue;
+            w[v] += dfs(dfs, u, v);
+        }
+        return w[v];
+    };
+    dfs(dfs);
+    ll ans = 1;  // (0, 0) は条件を満たす
+    {
+        ll sum = (ll)n * (n - 1) / 2;
+        for (int v : to[0]) {
+            sum -= (ll)w[v] * (w[v] - 1) / 2;
+        }
+        ans += sum;
+    }
+    auto dist = [&](int l, int r) -> int {
+        return w[l] + w[r] - 2 * w[lca.query(l, r)];
+    };
+    int l = 0, r = 0;
+    int l_ = -1, r_ = -1;
+    REP(v, 1, n) {
+        if (dist(v, l) + dist(l, r) == dist(v, r)) {
+            l = v;
+            if (l_ == -1) {
+                for (int u : to[0]) {
+                    if (dist(l, u) + dist(u, 0) == dist(l, 0)) {
+                        l_ = u;
+                        break;
+                    }
+                }
+            }
+        } else if (dist(l, r) + dist(r, v) == dist(l, v)) {
+            r = v;
+            if (r_ == -1) {
+                for (int u : to[0]) {
+                    if (dist(r, u) + dist(u, 0) == dist(r, 0)) {
+                        r_ = u;
+                        break;
+                    }
+                }
+            }
+        } else if (dist(l, v) + dist(v, r) != dist(l, r)) {
+            break;
+        }
+        ll sumL = w[l], sumR = w[r];
+        if (l == 0) {
+            assert(r_ != -1);
+            sumL -= w[r_];
+        }
+        if (r == 0) {
+            assert(l_ != -1);
+            sumR -= w[l_];
+        }
+        ans += sumL * sumR;
+    }
+    output(ans);
 }
