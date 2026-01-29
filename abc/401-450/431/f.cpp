@@ -30,6 +30,59 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
+template <class T> struct CumulativeSum {
+   public:
+    CumulativeSum(int n) : n(n), data(n + 1, 0) {};
+    CumulativeSum(const vector<T>& v) : n((int)v.size()) {
+        data.resize(n + 1, 0);
+        for (int i = 0; i < n; ++i) {
+            data[i + 1] = v[i];
+        }
+    };
+
+    void add(int idx, T x) {
+        assert(0 <= idx && idx < n);
+        data[idx + 1] += x;
+    }
+
+    void build() {
+        for (int i = 0; i < n; ++i) {
+            data[i + 1] += data[i];
+        }
+    }
+
+    // [l, r)
+    T sum(int l, int r) {
+        assert(0 <= l && l <= r && r <= n);
+        return data[r] - data[l];
+    }
+
+   private:
+    int n;
+    vector<T> data;
+};
+
+using mint = modint998244353;
+
 int main() {
-    //
+    int n, d;
+    cin >> n >> d;
+    vector<int> a(n);
+    REP(i, n) cin >> a[i];
+    vector<int> cnt(1000001, 0);
+    REP(i, n) cnt[a[i]]++;
+    CumulativeSum<int> cs(cnt);
+    cs.build();
+    vector<mint> fact(1000001);
+    fact[0] = 1;
+    REP(i, 1000000) fact[i + 1] = fact[i] * (i + 1);
+    mint ans = 1;
+    REP(x, 1000001) {
+        if (cnt[x] == 0) continue;
+        mint sum = fact[cs.sum(max(x - d, 0), x + 1)];
+        sum /= fact[cnt[x]];
+        sum /= fact[cs.sum(max(x - d, 0), x + 1) - cnt[x]];
+        ans *= sum;
+    }
+    output(ans.val());
 }
