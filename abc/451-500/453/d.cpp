@@ -1,0 +1,145 @@
+// clang-format off
+#include <bits/stdc++.h>
+using namespace std;
+#if __has_include(<atcoder/all>)
+#include <atcoder/all>
+using namespace atcoder;
+#endif
+
+#define _overload3(_1,_2,_3,name,...) name
+#define _REP(i,n) REPI(i,0,n)
+#define REPI(i,a,b) for(int i=int(a);i<int(b);++i)
+#define REP(...) _overload3(__VA_ARGS__,REPI,_REP,)(__VA_ARGS__)
+#define _RREP(i,n) RREPI(i,n,0)
+#define RREPI(i,a,b) for(int i=int(a);i>=int(b);--i)
+#define RREP(...) _overload3(__VA_ARGS__,RREPI,_RREP,)(__VA_ARGS__)
+#define ALL(a) (a).begin(),(a).end()
+#define ALLR(a) (a).rbegin(),(a).rend()
+typedef long long ll;
+const int INF32 = 1001001001;
+const long long INF64 = 1001001001001001001;
+struct Init { Init() { ios::sync_with_stdio(0); cin.tie(0); cout << setprecision(15); }} init;
+template<class T> bool chmax(T &a, const T &b) { if (a < b) { a = b; return true; } return false; }
+template<class T> bool chmin(T &a, const T &b) { if (a > b) { a = b; return true; } return false; }
+template<class T> T gcd(T x, T y){ return (x % y) ? gcd(y, x % y) : y; }
+template<class T> T lcm(T x, T y){ return x / gcd(x, y) * y; }
+template<class T, class... Ts> void output(const T& a, const Ts&... b) { cout << a; (cout << ... << (cout << ' ', b)); cout << '\n'; }
+template<class T> void output(vector<T> v) { for (auto u : v) cout << u << ' '; cout << '\n'; };
+void yesno(bool is_ok) { cout << (is_ok ? "yes" : "no") << '\n'; }
+void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
+void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
+
+// clang-format on
+const int dy[] = {-1, 0, 1, 0};
+const int dx[] = {0, 1, 0, -1};
+
+int main() {
+    int h, w;
+    cin >> h >> w;
+    vector<string> s(h);
+    REP(i, h) cin >> s[i];
+    int sy, sx, gy, gx;
+    REP(i, h) {
+        REP(j, w) {
+            if (s[i][j] == 'S') {
+                sy = i;
+                sx = j;
+            }
+            if (s[i][j] == 'G') {
+                gy = i;
+                gx = j;
+            }
+        }
+    }
+    queue<tuple<int, int, int>> q;
+    vector dist(h, vector(w, vector<int>(4, INF32)));
+    REP(i, 4) dist[sy][sx][i] = 0;
+    q.push({sy, sx, 0});
+    // 進行方向
+    // 0:上, 1:右, 2:下, 3:左
+    while (!q.empty()) {
+        auto [y, x, d] = q.front();
+        q.pop();
+        REP(i, 4) {
+            if (s[y][x] == 'o' && i != d) continue;
+            if (s[y][x] == 'x' && i == d) continue;
+            int ny = y + dy[i];
+            int nx = x + dx[i];
+            if (ny < 0 || nx < 0 || ny >= h || nx >= w) continue;
+            if (s[ny][nx] == '#') continue;
+            if (chmin(dist[ny][nx][i], dist[y][x][d] + 1)) {
+                q.push({ny, nx, i});
+                if (s[ny][nx] == 'G') {
+                    while (!q.empty()) {
+                        q.pop();
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    bool is_ok = false;
+    REP(i, 4) {
+        if (dist[gy][gx][i] != INF32) {
+            is_ok = true;
+        }
+    }
+    if (!is_ok) {
+        output("No");
+        return 0;
+    }
+    vector<int> memo;
+    string ans = "";
+    bool is_finish = false;
+    auto dfs = [&](auto& dfs, int y, int x, int d) -> void {
+        if (is_finish) {
+            return;
+        }
+        if (s[y][x] == 'S') {
+            reverse(ALL(memo));
+            REP(i, memo.size()) {
+                if (memo[i] == 0) {
+                    ans += "U";
+                } else if (memo[i] == 1) {
+                    ans += "R";
+                } else if (memo[i] == 2) {
+                    ans += "D";
+                } else {
+                    ans += "L";
+                }
+            }
+            is_finish = true;
+            return;
+        }
+        REP(i, 4) {
+            int ny = y + dy[(i + 2) % 4];
+            int nx = x + dx[(i + 2) % 4];
+            if (ny < 0 || nx < 0 || ny >= h || nx >= w) continue;
+            if (s[ny][nx] == '#') continue;
+            if (s[ny][nx] == 'o' && i != d) continue;
+            if (s[ny][nx] == 'x' && i == d) continue;
+            if (dist[ny][nx][i] == dist[y][x][d] - 1) {
+                output("ok", y, x, d, ny, nx, i);
+                memo.push_back(i);
+                dfs(dfs, ny, nx, i);
+                memo.pop_back();
+            } else {
+                output("ng", y, x, d, ny, nx, i);
+            }
+        }
+    };
+    REP(i, 4) {
+        if (dist[gy][gx][i] != INF32) {
+            dfs(dfs, gy, gx, i);
+        }
+    }
+    output("Yes");
+    output(ans);
+    REP(k, 4) {
+        REP(i, h) {
+            REP(j, w) { cout << dist[i][j][k] << ' '; }
+            cout << endl;
+        }
+        cout << endl;
+    }
+}
