@@ -30,7 +30,7 @@ void YesNo(bool is_ok) { cout << (is_ok ? "Yes" : "No") << '\n'; }
 void YESNO(bool is_ok) { cout << (is_ok ? "YES" : "NO") << '\n'; }
 
 // clang-format on
-vector<int> LIS(int n, const vector<int> &a) {
+vector<int> LIS(int n, const vector<int>& a) {
     vector<int> dp(n, INF32);
     vector<int> ans, tmp;
     for (int i = 0; i < n; ++i) {
@@ -50,7 +50,7 @@ vector<int> LIS(int n, const vector<int> &a) {
     return ans;
 }
 
-void solve(int n, const vector<int> &a) {
+void solve(int n, const vector<int>& a) {
     auto ans = LIS(n, a);
     sort(ALL(ans));
     output(ans.size());
